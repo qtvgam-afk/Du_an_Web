@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Elara Bites – Crave the Bold</title>
+  <link rel="stylesheet" href="TrangChu.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="logo">
+        <span class="logo-icon">🍔</span>
+        <div class="logo-text">
+          <span class="logo-name">ELARA</span>
+          <span class="logo-sub">BITES.</span>
+        </div>
+      </div>
+
+      <nav class="nav-links">
+        <a href="#intro">Giới Thiệu</a>
+        <a href="#menu">Thực Đơn</a>
+        <a href="#locations">Hệ Thống Cửa Hàng</a>
+        <a href="#contact">Liên Hệ</a>
+      </nav>
+
+      <div class="nav-auth">
+        <a href="#login" class="btn-login">Đăng Nhập</a>
+        <a href="#register" class="btn-register">Đăng Ký</a>
+      </div>
+
+      <button class="hamburger" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="#intro" onclick="toggleMenu()">Giới Thiệu</a>
+      <a href="#menu" onclick="toggleMenu()">Thực Đơn</a>
+      <a href="#locations" onclick="toggleMenu()">Hệ Thống Cửa Hàng</a>
+      <a href="#contact" onclick="toggleMenu()">Liên Hệ</a>
+      <div class="mobile-auth">
+        <a href="#login" class="btn-login">Đăng Nhập</a>
+        <a href="#register" class="btn-register">Đăng Ký</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="hero-bg-pattern"></div>
+    <div class="hero-content">
+      <div class="hero-badge">🔥 Mới – Catering & Đặt Nhóm</div>
+      <h1 class="hero-title">
+        CRAVE THE<br />
+        <span class="hero-accent">BOLD.</span>
+      </h1>
+      <p class="hero-subtitle">Nhanh. Tươi. Không thể cưỡng lại.</p>
+      <div class="hero-actions">
+        <a href="#menu" class="btn-primary">Đặt Ngay</a>
+        <a href="#intro" class="btn-outline">Khám Phá Thêm</a>
+      </div>
+    </div>
+    <div class="hero-image-wrap">
+      <div class="hero-blob"></div>
+      <img
+        src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=700&q=80"
+        alt="Burger"
+        class="hero-img"
+      />
+      <div class="hero-float hero-float--1">🍟 Mới mỗi ngày</div>
+      <div class="hero-float hero-float--2">⭐ 4.9 / 5</div>
+    </div>
+  </section>
+
+  <!-- ===== FEATURE CARDS ===== -->
+  <section class="features">
+    <div class="container">
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🚀</div>
+          <h3>Giao Hàng Siêu Tốc</h3>
+          <p>Nhận hàng trong 30 phút hoặc miễn phí đơn tiếp theo.</p>
+        </div>
+        <div class="feature-card feature-card--highlight">
+          <div class="feature-icon">🎯</div>
+          <h3>Cravings Tracker</h3>
+          <p>Theo dõi lịch sử đặt hàng & gợi ý món yêu thích của bạn.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">👥</div>
+          <h3>Đặt Nhóm</h3>
+          <p>Hoàn hảo cho văn phòng, tiệc tùng. Giảm 15% từ 5 phần.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== GIỚI THIỆU ===== -->
+  <section class="intro" id="intro">
+    <div class="container intro-grid">
+      <div class="intro-visual">
+        <div class="intro-img-wrap">
+          <img
+            src="https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=600&q=80"
+            alt="Về chúng tôi"
+            class="intro-img"
+          />
+          <div class="intro-stat">
+            <span class="stat-num">12+</span>
+            <span class="stat-label">Năm kinh nghiệm</span>
+          </div>
+        </div>
+      </div>
+      <div class="intro-text">
+        <span class="section-tag">Về Chúng Tôi</span>
+        <h2 class="section-title">Câu chuyện bắt đầu<br/>từ niềm đam mê</h2>
+        <p>Elara Bites ra đời năm 2012 với một ước mơ đơn giản: mang đến những bữa ăn fast food ngon, tươi và đầy cá tính. Chúng tôi không chỉ bán thức ăn — chúng tôi tạo ra những trải nghiệm khiến bạn nhớ mãi.</p>
+        <p>Mỗi nguyên liệu đều được tuyển chọn kỹ, mỗi công thức đều được hoàn thiện qua nhiều năm. Đó là lý do khách hàng quay lại với chúng tôi không chỉ một lần.</p>
+        <div class="intro-stats">
+          <div class="i-stat"><strong>50K+</strong><span>Khách hàng</span></div>
+          <div class="i-stat"><strong>30+</strong><span>Chi nhánh</span></div>
+          <div class="i-stat"><strong>200+</strong><span>Món ăn</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== THỰC ĐƠN ===== -->
+  <section class="menu-section" id="menu">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Thực Đơn</span>
+        <h2 class="section-title">Món Nổi Bật</h2>
+        <p class="section-desc">Tươi ngon, chế biến ngay khi bạn đặt.</p>
+      </div>
+
+      <div class="menu-tabs">
+        <button class="tab-btn active" onclick="filterMenu(this,'all')">Tất cả</button>
+        <button class="tab-btn" onclick="filterMenu(this,'burger')">Burger</button>
+        <button class="tab-btn" onclick="filterMenu(this,'combo')">Combo</button>
+        <button class="tab-btn" onclick="filterMenu(this,'drink')">Đồ Uống</button>
+      </div>
+
+      <div class="menu-grid">
+        <div class="menu-card" data-cat="burger">
+          <div class="menu-img-wrap">
+            <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80" alt="Bacon Burger" />
+            <span class="menu-badge">Bán chạy</span>
+          </div>
+          <div class="menu-info">
+            <h4>Elara Bacon Burger</h4>
+            <p>Thịt bò Úc, phô mai, bacon giòn, sốt đặc biệt</p>
+            <div class="menu-footer">
+              <span class="price">349.000₫</span>
+              <button class="btn-add">+ Thêm</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-card" data-cat="combo">
+          <div class="menu-img-wrap">
+            <img src="https://images.unsplash.com/photo-1639024471283-03518883512d?w=400&q=80" alt="Loaded Fries" />
+            <span class="menu-badge menu-badge--new">Mới</span>
+          </div>
+          <div class="menu-info">
+            <h4>Loaded Cheese Fries</h4>
+            <p>Khoai tây chiên phủ phô mai tan chảy & jalapeño</p>
+            <div class="menu-footer">
+              <span class="price">129.000₫</span>
+              <button class="btn-add">+ Thêm</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-card" data-cat="burger">
+          <div class="menu-img-wrap">
+            <img src="https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=400&q=80" alt="Chicken Wings" />
+          </div>
+          <div class="menu-info">
+            <h4>Crispy Chicken Wings</h4>
+            <p>8 cánh gà chiên giòn, sốt Buffalo hoặc Honey BBQ</p>
+            <div class="menu-footer">
+              <span class="price">189.000₫</span>
+              <button class="btn-add">+ Thêm</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-card" data-cat="drink">
+          <div class="menu-img-wrap">
+            <img src="https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&q=80" alt="Milkshake" />
+          </div>
+          <div class="menu-info">
+            <h4>Signature Milkshake</h4>
+            <p>Vị vani, socola, dâu tây — đặc, béo, thơm</p>
+            <div class="menu-footer">
+              <span class="price">89.000₫</span>
+              <button class="btn-add">+ Thêm</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-card" data-cat="combo">
+          <div class="menu-img-wrap">
+            <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?w=400&q=80" alt="Combo" />
+            <span class="menu-badge menu-badge--hot">Tiết kiệm</span>
+          </div>
+          <div class="menu-info">
+            <h4>Combo Gia Đình</h4>
+            <p>4 burger + 4 khoai tây + 4 nước — đủ cho cả nhà</p>
+            <div class="menu-footer">
+              <span class="price">1.199.000₫</span>
+              <button class="btn-add">+ Thêm</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-card" data-cat="burger">
+          <div class="menu-img-wrap">
+            <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?w=400&q=80" alt="Double Stack" />
+          </div>
+          <div class="menu-info">
+            <h4>Double Stack Classic</h4>
+            <p>2 tầng thịt bò, dưa chuột, hành tây, sốt bí mật</p>
+            <div class="menu-footer">
+              <span class="price">279.000₫</span>
+              <button class="btn-add">+ Thêm</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="menu-cta">
+        <a href="#" class="btn-primary">Xem Toàn Bộ Thực Đơn →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== HỆ THỐNG CỬA HÀNG ===== -->
+  <section class="locations" id="locations">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Hệ Thống Cửa Hàng</span>
+        <h2 class="section-title">Tìm Chúng Tôi Gần Bạn</h2>
+        <p class="section-desc">30+ chi nhánh trải dài từ Bắc vào Nam.</p>
+      </div>
+
+      <div class="loc-grid">
+        <div class="loc-card">
+          <div class="loc-icon">📍</div>
+          <div class="loc-info">
+            <h4>TP. Hồ Chí Minh</h4>
+            <p>12 chi nhánh — Quận 1, 3, 7, Bình Thạnh, Thủ Đức...</p>
+            <span class="loc-tag">Mở 7:00 – 23:00</span>
+          </div>
+        </div>
+        <div class="loc-card">
+          <div class="loc-icon">📍</div>
+          <div class="loc-info">
+            <h4>Hà Nội</h4>
+            <p>9 chi nhánh — Hoàn Kiếm, Đống Đa, Cầu Giấy...</p>
+            <span class="loc-tag">Mở 7:00 – 23:00</span>
+          </div>
+        </div>
+        <div class="loc-card">
+          <div class="loc-icon">📍</div>
+          <div class="loc-info">
+            <h4>Đà Nẵng</h4>
+            <p>5 chi nhánh — Hải Châu, Thanh Khê, Sơn Trà...</p>
+            <span class="loc-tag">Mở 7:30 – 22:30</span>
+          </div>
+        </div>
+        <div class="loc-card">
+          <div class="loc-icon">📍</div>
+          <div class="loc-info">
+            <h4>Cần Thơ</h4>
+            <p>4 chi nhánh — Ninh Kiều, Bình Thủy, Cái Răng...</p>
+            <span class="loc-tag">Mở 7:00 – 22:00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="loc-map-placeholder">
+        <div class="map-inner">
+          <span>🗺️</span>
+          <p>Bản đồ tương tác — Tích hợp Google Maps</p>
+          <a href="#" class="btn-outline">Xem Bản Đồ</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== LIÊN HỆ ===== -->
+  <section class="contact" id="contact">
+    <div class="container contact-grid">
+      <div class="contact-info">
+        <span class="section-tag">Liên Hệ</span>
+        <h2 class="section-title">Chúng Tôi Luôn Lắng Nghe</h2>
+        <p>Có câu hỏi, góp ý hay hợp tác kinh doanh? Hãy liên hệ — đội ngũ chúng tôi phản hồi trong 24 giờ.</p>
+        <ul class="contact-details">
+          <li><span>📞</span> 1800 6868 (miễn phí)</li>
+          <li><span>✉️</span> hello@elarabites.vn</li>
+          <li><span>📍</span> 123 Nguyễn Huệ, Quận 1, TP.HCM</li>
+          <li><span>🕐</span> Thứ 2 – Chủ Nhật: 7:00 – 23:00</li>
+        </ul>
+        <div class="social-links">
+          <a href="#" class="social-btn">Facebook</a>
+          <a href="#" class="social-btn">Instagram</a>
+          <a href="#" class="social-btn">TikTok</a>
+        </div>
+      </div>
+
+      <form class="contact-form" onsubmit="submitForm(event)">
+        <div class="form-group">
+          <label>Họ và tên</label>
+          <input type="text" placeholder="Nguyễn Văn A" required />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" placeholder="email@example.com" required />
+        </div>
+        <div class="form-group">
+          <label>Số điện thoại</label>
+          <input type="tel" placeholder="0909 xxx xxx" />
+        </div>
+        <div class="form-group">
+          <label>Tin nhắn</label>
+          <textarea rows="4" placeholder="Nội dung bạn muốn gửi..."></textarea>
+        </div>
+        <button type="submit" class="btn-primary btn-full">Gửi Tin Nhắn ✉️</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <div class="logo">
+          <span class="logo-icon">🍔</span>
+          <div class="logo-text">
+            <span class="logo-name">ELARA</span>
+            <span class="logo-sub">BITES.</span>
+          </div>
+        </div>
+        <p>Fast, fresh, and undeniably delicious.<br/>Crave the bold. Every single day.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Khám Phá</h5>
+        <a href="#intro">Giới Thiệu</a>
+        <a href="#menu">Thực Đơn</a>
+        <a href="#locations">Cửa Hàng</a>
+        <a href="#contact">Liên Hệ</a>
+      </div>
+      <div class="footer-col">
+        <h5>Hỗ Trợ</h5>
+        <a href="#">Chính sách đổi trả</a>
+        <a href="#">Câu hỏi thường gặp</a>
+        <a href="#">Chương trình khách hàng</a>
+        <a href="#">Tuyển dụng</a>
+      </div>
+      <div class="footer-col">
+        <h5>Đăng Ký Nhận Ưu Đãi</h5>
+        <p style="font-size:.85rem;opacity:.7;margin-bottom:1rem;">Nhận ngay mã giảm 20% cho đơn đầu tiên.</p>
+        <div class="newsletter">
+          <input type="email" placeholder="Email của bạn" />
+          <button>OK</button>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Elara Bites. All rights reserved.</p>
+      <div class="footer-links">
+        <a href="#">Điều khoản</a>
+        <a href="#">Bảo mật</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== MODALS ===== -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+    <div class="modal" id="loginModal" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <h3>Đăng Nhập</h3>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" placeholder="email@example.com" />
+      </div>
+      <div class="form-group">
+        <label>Mật khẩu</label>
+        <input type="password" placeholder="••••••••" />
+      </div>
+      <button class="btn-primary btn-full">Đăng Nhập</button>
+      <p class="modal-switch">Chưa có tài khoản? <a href="#register" onclick="switchModal('register')">Đăng ký ngay</a></p>
+    </div>
+
+    <div class="modal" id="registerModal" style="display:none" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <h3>Đăng Ký</h3>
+      <div class="form-group">
+        <label>Họ và tên</label>
+        <input type="text" placeholder="Nguyễn Văn A" />
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" placeholder="email@example.com" />
+      </div>
+      <div class="form-group">
+        <label>Mật khẩu</label>
+        <input type="password" placeholder="••••••••" />
+      </div>
+      <button class="btn-primary btn-full">Tạo Tài Khoản</button>
+      <p class="modal-switch">Đã có tài khoản? <a href="#login" onclick="switchModal('login')">Đăng nhập</a></p>
+    </div>
+  </div>
+
+  <!-- ===== CART TOAST ===== -->
+  <div class="toast" id="toast">✅ Đã thêm vào giỏ hàng!</div>
+
+  <script>
+    // Navbar scroll effect
+    window.addEventListener('scroll', () => {
+      document.querySelector('.navbar').classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // Mobile menu
+    function toggleMenu() {
+      document.getElementById('mobileMenu').classList.toggle('open');
+    }
+
+    // Menu filter
+    function filterMenu(btn, cat) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.menu-card').forEach(card => {
+        card.style.display = (cat === 'all' || card.dataset.cat === cat) ? 'flex' : 'none';
+      });
+    }
+
+    // Modals
+    function openModal(type) {
+      document.getElementById('modalOverlay').style.display = 'flex';
+      document.getElementById('loginModal').style.display = type === 'login' ? 'block' : 'none';
+      document.getElementById('registerModal').style.display = type === 'register' ? 'block' : 'none';
+    }
+    function closeModal() {
+      document.getElementById('modalOverlay').style.display = 'none';
+    }
+    function switchModal(type) {
+      document.getElementById('loginModal').style.display = type === 'login' ? 'block' : 'none';
+      document.getElementById('registerModal').style.display = type === 'register' ? 'block' : 'none';
+    }
+    document.querySelector('.btn-login').addEventListener('click', e => { e.preventDefault(); openModal('login'); });
+    document.querySelector('.btn-register').addEventListener('click', e => { e.preventDefault(); openModal('register'); });
+
+    // Add to cart toast
+    document.querySelectorAll('.btn-add').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2500);
+      });
+    });
+
+    // Contact form
+    function submitForm(e) {
+      e.preventDefault();
+      alert('Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất. 🎉');
+    }
+  </script>
+</body>
+</html>
