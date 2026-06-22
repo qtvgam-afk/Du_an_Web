@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>⚡ Code Arena – Robot Coding</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FFF5EE;
+  --surface:#FFFFFF;
+  --surface2:#FFF0E6;
+  --surface3:#FFE8D6;
+  --accent:#E8541A;
+  --accent2:#FF7A40;
+  --warm:#F97316;
+  --gold:#F59E0B;
+  --green:#16A34A;
+  --red:#DC2626;
+  --blue:#2563EB;
+  --text:#3D1A00;
+  --muted:#A0522D;
+  --border:#F4C49E;
+  --shadow:rgba(232,84,26,.12);
+}
+body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* Warm decorative background */
+.bg-deco{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
+.bg-deco::before{content:'';position:absolute;top:-100px;right:-100px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(249,115,22,.1),transparent 70%)}
+.bg-deco::after{content:'';position:absolute;bottom:-80px;left:-80px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(245,158,11,.1),transparent 70%)}
+.bubble{position:absolute;border-radius:50%;animation:float linear infinite;opacity:.5}
+@keyframes float{0%{transform:translateY(0) rotate(0deg);opacity:.5}100%{transform:translateY(-100vh) rotate(360deg);opacity:0}}
+
+#app{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:12px 12px 80px}
+
+.header{text-align:center;padding:14px 0 6px}
+.logo{font-size:24px;font-weight:900;background:linear-gradient(135deg,#E8541A,#F97316,#F59E0B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.5px}
+.subtitle{font-size:12px;color:var(--muted);margin-top:3px;font-weight:600}
+
+/* Timer bar */
+.timer-bar{position:fixed;top:0;left:0;width:100%;height:5px;background:var(--border);z-index:100}
+.timer-fill{height:100%;background:linear-gradient(90deg,#E8541A,#F59E0B);transition:width 1s linear;border-radius:0 2px 2px 0}
+.timer-display{position:fixed;top:8px;right:12px;z-index:101;background:rgba(255,255,255,.95);border:1.5px solid var(--border);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:800;color:var(--accent);font-family:'Nunito',sans-serif;box-shadow:0 2px 8px var(--shadow)}
+.timer-display.urgent{color:var(--red);animation:pulse-red .6s infinite}
+@keyframes pulse-red{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* Arena robots */
+.arena{display:flex;align-items:flex-end;justify-content:center;gap:8px;margin:6px 0 10px}
+.robot-wrap{flex-shrink:0;position:relative}
+.robot-wrap svg{width:68px;height:84px;filter:drop-shadow(0 4px 12px rgba(232,84,26,.2))}
+
+.card{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:16px;margin-bottom:12px;box-shadow:0 4px 20px var(--shadow)}
+.card-title{font-size:12px;font-weight:800;color:var(--warm);letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px}
+
+/* Tab row */
+.tab-row{display:flex;gap:6px;margin-bottom:14px}
+.tab{flex:1;padding:9px 4px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);font-size:12px;font-family:'Nunito',sans-serif;cursor:pointer;text-align:center;transition:.2s;font-weight:700}
+.tab.active{border-color:var(--accent);color:var(--accent);background:rgba(232,84,26,.08)}
+.tab.done{border-color:var(--green);color:var(--green);background:rgba(22,163,74,.08)}
+
+.question-badge{display:inline-block;background:linear-gradient(135deg,rgba(232,84,26,.15),rgba(245,158,11,.15));color:var(--accent);border-radius:10px;padding:4px 12px;font-size:11px;font-weight:800;margin-bottom:10px;border:1px solid rgba(232,84,26,.2)}
+.question-text{font-size:14px;line-height:1.65;color:var(--text);margin-bottom:12px}
+
+.editor-wrap{position:relative}
+.editor-label{font-size:11px;color:var(--muted);margin-bottom:6px;font-family:'Fira Code',monospace;font-weight:600}
+textarea{width:100%;min-height:120px;background:#FFF9F5;border:1.5px solid var(--border);border-radius:12px;color:#3D1A00;font-family:'Fira Code',monospace;font-size:13px;padding:12px;resize:vertical;outline:none;line-height:1.6;transition:.2s}
+textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,84,26,.1)}
+textarea.success{border-color:var(--green);background:rgba(22,163,74,.04)}
+textarea.error{border-color:var(--red);background:rgba(220,38,38,.04)}
+
+.btn-row{display:flex;gap:8px;margin-top:10px}
+.btn{flex:1;padding:12px;border-radius:12px;border:none;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-primary{background:linear-gradient(135deg,#E8541A,#F97316);color:#fff;box-shadow:0 4px 16px rgba(232,84,26,.3)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(232,84,26,.4)}
+.btn-primary:active{transform:translateY(0)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-secondary{background:var(--surface2);color:var(--muted);border:1.5px solid var(--border)}
+.btn-next{background:linear-gradient(135deg,var(--green),#15803D);color:#fff;box-shadow:0 4px 12px rgba(22,163,74,.25)}
+.btn-teacher{background:linear-gradient(135deg,#7C3AED,#5B21B6);color:#fff;box-shadow:0 4px 16px rgba(124,58,237,.3);font-size:13px}
+
+.result-box{border-radius:14px;padding:14px;margin-top:10px;display:none}
+.result-box.show{display:block}
+.result-box.pass{background:rgba(22,163,74,.08);border:1.5px solid rgba(22,163,74,.25)}
+.result-box.fail{background:rgba(220,38,38,.08);border:1.5px solid rgba(220,38,38,.25)}
+.result-score{font-size:30px;font-weight:900;margin-bottom:6px}
+.result-score.pass{color:var(--green)}
+.result-score.fail{color:var(--red)}
+.result-fb{font-size:13px;line-height:1.6;color:var(--text)}
+
+.loading-dots{display:inline-flex;gap:4px;align-items:center}
+.loading-dots span{width:5px;height:5px;border-radius:50%;background:currentColor;animation:dot .9s infinite}
+.loading-dots span:nth-child(2){animation-delay:.2s}
+.loading-dots span:nth-child(3){animation-delay:.4s}
+@keyframes dot{0%,80%,100%{opacity:.2}40%{opacity:1}}
+
+.name-input{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;outline:none;margin-bottom:10px}
+.name-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,84,26,.1)}
+
+.leaderboard{display:flex;flex-direction:column;gap:6px}
+.lb-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border-radius:12px;border:1.5px solid var(--border)}
+.lb-rank{font-size:16px;width:28px;text-align:center}
+.lb-name{flex:1;font-weight:700;font-size:14px;color:var(--text)}
+.lb-score{font-weight:900;font-size:16px}
+.lb-time{font-size:11px;color:var(--muted)}
+.lb-score.gold{color:#D97706}
+.lb-score.silver{color:#6B7280}
+.lb-score.bronze{color:#92400E}
+
+.finish-banner{text-align:center;padding:20px 16px}
+.finish-emoji{font-size:52px;margin-bottom:8px}
+.finish-title{font-size:24px;font-weight:900;margin-bottom:6px;color:var(--text)}
+.finish-sub{font-size:14px;color:var(--muted);margin-bottom:16px;font-weight:600}
+.total-score{font-size:56px;font-weight:900;background:linear-gradient(135deg,#E8541A,#F59E0B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+.progress-bar{height:6px;background:var(--border);border-radius:3px;margin-bottom:14px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#E8541A,#F59E0B);border-radius:3px;transition:width .5s}
+
+.hint-btn{font-size:11px;color:var(--accent);background:none;border:none;cursor:pointer;font-family:'Nunito',sans-serif;padding:0;margin-left:8px;font-weight:700}
+.hint-box{background:rgba(249,115,22,.08);border:1.5px solid rgba(249,115,22,.25);border-radius:10px;padding:10px 12px;font-size:12px;color:#7C2D12;margin-top:8px;font-family:'Fira Code',monospace;display:none}
+.hint-box.show{display:block}
+
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes excited{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-14px) rotate(3deg)}}
+@keyframes wave{0%,100%{transform:rotate(0deg) translateY(0)}25%{transform:rotate(12deg) translateY(-4px)}75%{transform:rotate(-12deg) translateY(-4px)}}
+@keyframes idle-float{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-5px) rotate(1deg)}}
+.robot-bounce{animation:bounce 2s ease-in-out infinite}
+.robot-excited{animation:excited .6s ease-in-out infinite}
+.robot-idle{animation:idle-float 3s ease-in-out infinite}
+
+/* ===== WAITING SCREEN ===== */
+.wait-screen{text-align:center;padding:10px 0}
+.wait-title{font-size:20px;font-weight:900;color:var(--accent);margin-bottom:4px}
+.wait-sub{font-size:13px;color:var(--muted);font-weight:600;margin-bottom:16px}
+
+/* Player robo card */
+.player-robo-card{background:var(--surface);border:2px solid var(--border);border-radius:20px;padding:14px 12px;text-align:center;position:relative;box-shadow:0 4px 16px var(--shadow)}
+.player-robo-card.me{border-color:var(--accent)}
+.player-name-tag{font-size:13px;font-weight:800;color:var(--text);margin-top:8px;background:var(--surface2);border-radius:8px;padding:4px 10px;display:inline-block}
+.player-status{font-size:11px;color:var(--muted);margin-top:4px;font-weight:600}
+.player-status.ready{color:var(--green)}
+.ready-badge{position:absolute;top:-6px;right:-6px;background:var(--green);color:#fff;font-size:10px;font-weight:800;border-radius:20px;padding:2px 7px}
+
+/* Waiting room grid */
+.wait-room{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin:12px 0}
+
+/* Countdown overlay */
+.countdown-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,245,238,.92);z-index:200;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.countdown-num{font-size:120px;font-weight:900;background:linear-gradient(135deg,#E8541A,#F59E0B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:count-pop .8s ease-out;line-height:1}
+@keyframes count-pop{0%{transform:scale(2);opacity:0}60%{transform:scale(.9)}100%{transform:scale(1);opacity:1}}
+.countdown-label{font-size:18px;font-weight:800;color:var(--muted);margin-top:8px}
+
+/* Total score board screen */
+.score-board-screen .board-entry{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;background:var(--surface);border:1.5px solid var(--border);margin-bottom:8px;box-shadow:0 2px 8px var(--shadow)}
+.score-board-screen .board-entry.highlight{border-color:var(--accent);background:rgba(232,84,26,.06)}
+.board-entry-rank{font-size:22px;min-width:36px;text-align:center}
+.board-entry-info{flex:1}
+.board-entry-name{font-size:15px;font-weight:800;color:var(--text)}
+.board-entry-detail{font-size:11px;color:var(--muted);font-weight:600}
+.board-entry-score{font-size:24px;font-weight:900;text-align:right}
+.board-entry-score .pts{font-size:11px;font-weight:600;color:var(--muted)}
+
+/* Teacher panel */
+.teacher-panel{background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(91,33,182,.06));border:1.5px solid rgba(124,58,237,.2);border-radius:16px;padding:14px;margin-bottom:12px}
+.teacher-label{font-size:11px;font-weight:800;color:#7C3AED;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px}
+
+/* Teacher dashboard */
+.pin-screen{max-width:340px;margin:60px auto 0;text-align:center}
+.monitor-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border-radius:12px;border:1.5px solid var(--border);margin-bottom:8px}
+.monitor-name{flex:1;font-weight:800;font-size:14px;color:var(--text)}
+.monitor-status{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px}
+.monitor-status.working{background:rgba(245,158,11,.15);color:#B45309}
+.monitor-status.submitted{background:rgba(37,99,235,.15);color:#1D4ED8}
+.monitor-status.done{background:rgba(22,163,74,.15);color:var(--green)}
+.monitor-status.waiting{background:rgba(160,82,45,.1);color:var(--muted)}
+.monitor-scores{display:flex;gap:4px}
+.monitor-pip{width:22px;height:22px;border-radius:6px;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;color:#fff;background:var(--border)}
+.monitor-pip.ok{background:var(--green)}
+.monitor-pip.low{background:var(--gold)}
+.monitor-pip.bad{background:var(--red)}
+.watch-btn{background:none;border:1.5px solid var(--border);border-radius:8px;padding:5px 9px;font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit}
+.watch-modal-overlay{position:fixed;inset:0;background:rgba(61,26,0,.55);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px}
+.watch-modal{background:var(--surface);border-radius:18px;padding:18px;max-width:480px;width:100%;max-height:85vh;overflow:auto;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.watch-modal h3{font-size:15px;font-weight:900;color:var(--accent);margin-bottom:10px}
+.watch-code{background:#FFF9F5;border:1.5px solid var(--border);border-radius:10px;padding:10px;font-family:'Fira Code',monospace;font-size:12px;white-space:pre-wrap;margin-bottom:10px;min-height:60px}
+.publish-banner{text-align:center;padding:24px 16px;color:var(--muted);font-weight:700;font-size:14px}
+
+/* Responsive */
+@media(max-width:380px){
+  #app{padding:8px 8px 80px}
+  .wait-room{grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px}
+  textarea{min-height:100px;font-size:12px}
+}
+@media(min-width:600px){
+  #app{padding:16px 16px 80px}
+  .arena .robot-wrap svg{width:80px;height:100px}
+}
+
+.pulse-ring{animation:pulse-ring 2s ease-out infinite}
+@keyframes pulse-ring{0%{box-shadow:0 0 0 0 rgba(232,84,26,.4)}70%{box-shadow:0 0 0 12px rgba(232,84,26,0)}100%{box-shadow:0 0 0 0 rgba(232,84,26,0)}}
+
+.emoji-rain{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:150}
+.e-particle{position:absolute;top:-30px;font-size:24px;animation:rain-fall linear forwards}
+@keyframes rain-fall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<div class="timer-bar"><div class="timer-fill" id="timerFill" style="width:100%"></div></div>
+<div class="timer-display" id="timerDisplay" style="display:none">⏱ 5:00</div>
+<div class="bg-deco"></div>
+<div id="emojiRain" class="emoji-rain"></div>
+
+<div id="app">
+  <div class="header">
+    <div class="logo">⚡ Code Arena</div>
+    <div class="subtitle">Viết code · AI chấm điểm · Lên bảng vàng 🏆</div>
+  </div>
+
+  <div class="arena">
+    <div class="robot-wrap" id="robot-left">
+      <!-- Robot A: Warm orange theme -->
+      <svg viewBox="0 0 64 84" fill="none" xmlns="http://www.w3.org/2000/svg" class="robot-bounce">
+        <rect x="24" y="0" width="16" height="7" rx="3.5" fill="#E8541A"/>
+        <rect x="10" y="7" width="44" height="32" rx="10" fill="#FFF0E6" stroke="#E8541A" stroke-width="2"/>
+        <circle cx="24" cy="22" r="7" fill="#FFF5EE" stroke="#E8541A" stroke-width="1.5"/>
+        <circle cx="24" cy="22" r="3.5" fill="#E8541A"/>
+        <circle cx="40" cy="22" r="7" fill="#FFF5EE" stroke="#E8541A" stroke-width="1.5"/>
+        <circle cx="40" cy="22" r="3.5" fill="#F59E0B"/>
+        <circle cx="26" cy="20" r="1.2" fill="#fff"/>
+        <circle cx="42" cy="20" r="1.2" fill="#fff"/>
+        <rect x="22" y="33" width="20" height="4" rx="2" fill="#F97316"/>
+        <rect x="8" y="39" width="48" height="28" rx="10" fill="#FFF0E6" stroke="#E8541A" stroke-width="2"/>
+        <rect x="17" y="47" width="12" height="7" rx="3.5" fill="#E8541A" opacity=".7"/>
+        <rect x="35" y="47" width="12" height="7" rx="3.5" fill="#F59E0B" opacity=".7"/>
+        <rect x="19" y="57" width="26" height="5" rx="2.5" fill="#16A34A" opacity=".8"/>
+        <rect x="5" y="46" width="7" height="16" rx="3.5" fill="#FFF0E6" stroke="#E8541A" stroke-width="2"/>
+        <rect x="52" y="46" width="7" height="16" rx="3.5" fill="#FFF0E6" stroke="#E8541A" stroke-width="2"/>
+        <rect x="13" y="67" width="14" height="14" rx="5" fill="#FFF0E6" stroke="#E8541A" stroke-width="2"/>
+        <rect x="37" y="67" width="14" height="14" rx="5" fill="#FFF0E6" stroke="#F59E0B" stroke-width="2"/>
+        <circle cx="6" cy="18" r="4" fill="#F59E0B" opacity=".6"/>
+        <circle cx="58" cy="18" r="4" fill="#E8541A" opacity=".6"/>
+      </svg>
+    </div>
+
+    <div style="flex:1;text-align:center" id="center-area"></div>
+
+    <div class="robot-wrap" id="robot-right">
+      <!-- Robot B: Gold theme -->
+      <svg viewBox="0 0 64 84" fill="none" xmlns="http://www.w3.org/2000/svg" class="robot-bounce" style="animation-delay:.5s;transform:scaleX(-1)">
+        <rect x="24" y="0" width="16" height="7" rx="3.5" fill="#F59E0B"/>
+        <rect x="10" y="7" width="44" height="32" rx="10" fill="#FFF8E6" stroke="#F59E0B" stroke-width="2"/>
+        <circle cx="24" cy="22" r="7" fill="#FFFBF0" stroke="#F59E0B" stroke-width="1.5"/>
+        <circle cx="24" cy="22" r="3.5" fill="#F59E0B"/>
+        <circle cx="40" cy="22" r="7" fill="#FFFBF0" stroke="#E8541A" stroke-width="1.5"/>
+        <circle cx="40" cy="22" r="3.5" fill="#E8541A"/>
+        <circle cx="26" cy="20" r="1.2" fill="#fff"/>
+        <circle cx="42" cy="20" r="1.2" fill="#fff"/>
+        <rect x="22" y="33" width="20" height="4" rx="2" fill="#F97316"/>
+        <rect x="8" y="39" width="48" height="28" rx="10" fill="#FFF8E6" stroke="#F59E0B" stroke-width="2"/>
+        <rect x="17" y="47" width="12" height="7" rx="3.5" fill="#F59E0B" opacity=".7"/>
+        <rect x="35" y="47" width="12" height="7" rx="3.5" fill="#E8541A" opacity=".7"/>
+        <rect x="19" y="57" width="26" height="5" rx="2.5" fill="#7C3AED" opacity=".7"/>
+        <rect x="5" y="46" width="7" height="16" rx="3.5" fill="#FFF8E6" stroke="#F59E0B" stroke-width="2"/>
+        <rect x="52" y="46" width="7" height="16" rx="3.5" fill="#FFF8E6" stroke="#F59E0B" stroke-width="2"/>
+        <rect x="13" y="67" width="14" height="14" rx="5" fill="#FFF8E6" stroke="#F59E0B" stroke-width="2"/>
+        <rect x="37" y="67" width="14" height="14" rx="5" fill="#FFF8E6" stroke="#E8541A" stroke-width="2"/>
+        <circle cx="6" cy="18" r="4" fill="#E8541A" opacity=".6"/>
+        <circle cx="58" cy="18" r="4" fill="#F59E0B" opacity=".6"/>
+      </svg>
+    </div>
+  </div>
+
+  <div id="main-content"></div>
+</div>
+
+<script>
+// ===== STORAGE KEY =====
+const STORAGE_KEY = 'code_arena_v3_board';
+const GAME_STATE_KEY = 'code_arena_v3_gamestate';
+const TOTAL_SECONDS = 300; // 5 minutes
+
+// ===== ROBOT COLOR PALETTE FOR PLAYERS =====
+const ROBOT_COLORS = [
+  {main:'#E8541A',eye:'#F59E0B',body:'#FFF0E6',border:'#E8541A'},
+  {main:'#7C3AED',eye:'#A78BFA',body:'#F3EEFF',border:'#7C3AED'},
+  {main:'#16A34A',eye:'#4ADE80',body:'#EDFFF4',border:'#16A34A'},
+  {main:'#2563EB',eye:'#60A5FA',body:'#EFF6FF',border:'#2563EB'},
+  {main:'#DC2626',eye:'#F87171',body:'#FFF0F0',border:'#DC2626'},
+  {main:'#D97706',eye:'#FCD34D',body:'#FFFBEB',border:'#D97706'},
+  {main:'#0891B2',eye:'#22D3EE',body:'#ECFEFF',border:'#0891B2'},
+  {main:'#BE185D',eye:'#F472B6',body:'#FFF0F7',border:'#BE185D'},
+];
+
+function getRobotColor(name) {
+  let hash = 0;
+  for(let c of name) hash = (hash*31 + c.charCodeAt(0)) & 0xFFFF;
+  return ROBOT_COLORS[hash % ROBOT_COLORS.length];
+}
+
+function makeRobot(name, size=56, mood='idle') {
+  const c = getRobotColor(name);
+  const anim = mood==='excited' ? 'robot-excited' : mood==='wave' ? 'robot-bounce' : 'robot-idle';
+  return `<svg width="${size}" height="${Math.round(size*1.25)}" viewBox="0 0 64 80" fill="none" class="${anim}" style="filter:drop-shadow(0 3px 8px ${c.main}40)">
+    <rect x="24" y="0" width="16" height="6" rx="3" fill="${c.main}"/>
+    <rect x="10" y="6" width="44" height="30" rx="9" fill="${c.body}" stroke="${c.border}" stroke-width="2"/>
+    <circle cx="24" cy="20" r="6.5" fill="${c.body}" stroke="${c.main}" stroke-width="1.5"/>
+    <circle cx="24" cy="20" r="3" fill="${c.main}"/>
+    <circle cx="40" cy="20" r="6.5" fill="${c.body}" stroke="${c.eye}" stroke-width="1.5"/>
+    <circle cx="40" cy="20" r="3" fill="${c.eye}"/>
+    <circle cx="25.5" cy="18.5" r="1" fill="#fff"/>
+    <circle cx="41.5" cy="18.5" r="1" fill="#fff"/>
+    <rect x="22" y="30" width="20" height="4" rx="2" fill="${c.eye}"/>
+    <rect x="8" y="36" width="48" height="26" rx="9" fill="${c.body}" stroke="${c.border}" stroke-width="2"/>
+    <rect x="17" y="44" width="11" height="6" rx="3" fill="${c.main}" opacity=".65"/>
+    <rect x="36" y="44" width="11" height="6" rx="3" fill="${c.eye}" opacity=".65"/>
+    <rect x="19" y="53" width="26" height="4" rx="2" fill="${c.main}" opacity=".4"/>
+    <rect x="5" y="43" width="7" height="14" rx="3.5" fill="${c.body}" stroke="${c.border}" stroke-width="2"/>
+    <rect x="52" y="43" width="7" height="14" rx="3.5" fill="${c.body}" stroke="${c.border}" stroke-width="2"/>
+    <rect x="13" y="62" width="13" height="13" rx="4" fill="${c.body}" stroke="${c.border}" stroke-width="2"/>
+    <rect x="38" y="62" width="13" height="13" rx="4" fill="${c.body}" stroke="${c.eye}" stroke-width="2"/>
+  </svg>`;
+}
+
+// ===== QUESTIONS =====
+const questions = [
+  {
+    id:1,
+    title:'Hàm tính tổng',
+    desc:'Viết hàm <code style="color:var(--accent);background:rgba(232,84,26,.1);padding:2px 6px;border-radius:4px">sum(a, b)</code> nhận 2 tham số <b>a</b> và <b>b</b> là số tự nhiên, trả về tổng của 2 số.',
+    hint:'function sum(a, b) {\n  // trả về tổng a + b\n}',
+    placeholder:'// Viết hàm sum() của bạn ở đây\n',
+    testPrompt: `Học sinh viết hàm sum(a,b) trả về tổng 2 số tự nhiên. Code của học sinh:\n\n{CODE}\n\nChấm điểm từ 0-10 theo:\n- 10đ: Đúng hoàn toàn, cú pháp tốt, có return\n- 7-9đ: Logic đúng nhưng có sai sót nhỏ\n- 4-6đ: Ý tưởng đúng nhưng thiếu return hoặc lỗi nhỏ\n- 0-3đ: Sai hoặc không liên quan\n\nChỉ trả về JSON thuần (không markdown): {"score":X,"pass":true/false,"feedback":"nhận xét bằng tiếng Việt tối đa 2 câu","emoji":"✅ hoặc ❌"}`
+  },
+  {
+    id:2,
+    title:'Giới thiệu bản thân',
+    desc:'Viết hàm <code style="color:var(--accent);background:rgba(232,84,26,.1);padding:2px 6px;border-radius:4px">introduce()</code> in ra <b>tên</b>, <b>tuổi</b>, và <b>sở thích</b> của chính bạn.',
+    hint:'function introduce() {\n  console.log("Tên: ...");\n  console.log("Tuổi: ...");\n  console.log("Sở thích: ...");\n}',
+    placeholder:'// Viết hàm introduce() của bạn ở đây\n',
+    testPrompt: `Học sinh viết hàm JavaScript in ra tên, tuổi, sở thích của mình. Code:\n\n{CODE}\n\nChấm từ 0-10:\n- 10đ: Có đủ 3 thông tin (tên, tuổi, sở thích), cú pháp đúng\n- 7-9đ: Có 2 thông tin, cú pháp gần đúng\n- 4-6đ: Chỉ 1 thông tin hoặc cú pháp sai nhẹ\n- 0-3đ: Thiếu nội dung, không phải hàm, hoặc không liên quan\n\nChỉ trả về JSON thuần (không markdown): {"score":X,"pass":true/false,"feedback":"nhận xét bằng tiếng Việt tối đa 2 câu","emoji":"✅ hoặc ❌"}`
+  }
+];
+
+// ===== STATE =====
+let state = {
+  screen: 'name',  // name | waiting | game | finish | totalboard
+  playerName: '',
+  currentQ: 0,
+  codes: ['',''],
+  scores: [null,null],
+  feedbacks: [null,null],
+  startTime: null,
+  submitting: false,
+  gameStarted: false,
+  timerInterval: null,
+  secondsLeft: TOTAL_SECONDS,
+};
+
+// ===== STORAGE helpers =====
+async function getBoard() {
+  try {
+    const r = await window.storage.get(STORAGE_KEY, true);
+    return r ? JSON.parse(r.value) : [];
+  } catch { return []; }
+}
+
+async function saveScore(name, score, time) {
+  try {
+    let board = await getBoard();
+    // Remove old entry of same player
+    board = board.filter(p => p.name !== name);
+    board.push({name, score, time, ts: new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})});
+    board.sort((a,b) => b.score-a.score || a.time-b.time);
+    board = board.slice(0,20);
+    await window.storage.set(STORAGE_KEY, JSON.stringify(board), true);
+  } catch(e){}
+}
+
+// Shared game control flag
+async function setGameStarted(val) {
+  try { await window.storage.set('arena_game_started_v3', val ? '1' : '0', true); } catch{}
+}
+async function isGameStartedRemote() {
+  try {
+    const r = await window.storage.get('arena_game_started_v3', true);
+    return r && r.value === '1';
+  } catch { return false; }
+}
+async function resetGameFlag() {
+  try { await window.storage.set('arena_game_started_v3', '0', true); } catch{}
+}
+
+// Waiting players list
+async function joinWaiting(name) {
+  try {
+    const r = await window.storage.get('arena_waiting_v3', true);
+    let list = r ? JSON.parse(r.value) : [];
+    if (!list.includes(name)) list.push(name);
+    await window.storage.set('arena_waiting_v3', JSON.stringify(list), true);
+  } catch{}
+}
+async function getWaitingPlayers() {
+  try {
+    const r = await window.storage.get('arena_waiting_v3', true);
+    return r ? JSON.parse(r.value) : [];
+  } catch { return []; }
+}
+async function clearWaiting() {
+  try { await window.storage.set('arena_waiting_v3', '[]', true); } catch{}
+}
+
+// ===== TIMER =====
+function startTimer(onDone) {
+  state.secondsLeft = TOTAL_SECONDS;
+  const disp = document.getElementById('timerDisplay');
+  const fill = document.getElementById('timerFill');
+  if(disp) disp.style.display = 'block';
+  if(state.timerInterval) clearInterval(state.timerInterval);
+  state.timerInterval = setInterval(() => {
+    state.secondsLeft--;
+    const m = Math.floor(state.secondsLeft/60);
+    const s = String(state.secondsLeft%60).padStart(2,'0');
+    const disp2 = document.getElementById('timerDisplay');
+    const fill2 = document.getElementById('timerFill');
+    if(disp2) {
+      disp2.textContent = `⏱ ${m}:${s}`;
+      if(state.secondsLeft <= 30) disp2.classList.add('urgent');
+      else disp2.classList.remove('urgent');
+    }
+    if(fill2) fill2.style.width = (state.secondsLeft/TOTAL_SECONDS*100)+'%';
+    if(state.secondsLeft <= 0) {
+      clearInterval(state.timerInterval);
+      if(onDone) onDone();
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  if(state.timerInterval) clearInterval(state.timerInterval);
+}
+
+// ===== AI GRADING =====
+async function gradeCode(code, qIdx) {
+  const prompt = questions[qIdx].testPrompt.replace('{CODE}', code);
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 400,
+      system: 'Bạn là giáo viên chấm code ngắn gọn. Chỉ trả về JSON thuần, không markdown.',
+      messages: [{role:'user', content: prompt}]
+    })
+  });
+  const data = await res.json();
+  const text = data.content.map(b=>b.text||'').join('');
+  const clean = text.replace(/```json|```/g,'').trim();
+  return JSON.parse(clean);
+}
+
+// ===== ROBOT MOOD =====
+function setRobotMood(mood) {
+  ['robot-left','robot-right'].forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    const svg = el.querySelector('svg');
+    if(!svg) return;
+    svg.className = '';
+    if(mood==='excited') svg.className = 'robot-excited';
+    else if(mood==='idle') svg.className = 'robot-bounce';
+    else svg.className = 'robot-idle';
+  });
+}
+
+// ===== EMOJI RAIN =====
+function emojiRain(emojis=['🎉','⭐','🚀','🔥','✨'], count=18) {
+  const rain = document.getElementById('emojiRain');
+  rain.innerHTML='';
+  for(let i=0;i<count;i++){
+    const e = document.createElement('span');
+    e.className='e-particle';
+    e.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    e.style.cssText=`left:${Math.random()*100}%;animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()*.8}s;font-size:${16+Math.random()*20}px`;
+    rain.appendChild(e);
+  }
+  setTimeout(()=>rain.innerHTML='', 4000);
+}
+
+// ===== WAITING POLL =====
+let waitPollInterval = null;
+function startWaitPoll() {
+  if(waitPollInterval) clearInterval(waitPollInterval);
+  waitPollInterval = setInterval(async () => {
+    const started = await isGameStartedRemote();
+    if(started) {
+      clearInterval(waitPollInterval);
+      startCountdown();
+    }
+    // Update player list display
+    const players = await getWaitingPlayers();
+    const grid = document.getElementById('waitGrid');
+    if(grid) {
+      grid.innerHTML = players.map(name => `
+        <div class="player-robo-card${name===state.playerName?' me':''}">
+          ${name===state.playerName?'<div class="ready-badge">Bạn</div>':''}
+          ${makeRobo(name, 50, 'wave')}
+          <div class="player-name-tag">${name.length>8?name.slice(0,8)+'…':name}</div>
+          <div class="player-status ready">✓ Sẵn sàng</div>
+        </div>`).join('');
+    }
+  }, 2500);
+}
+
+// Simple alias for robot in waiting screen
+function makeRobo(name, size, mood) { return makeRobot(name, size, mood); }
+
+// ===== SCREENS =====
+
+// -- NAME SCREEN --
+function renderNameScreen() {
+  state.screen = 'name';
+  document.getElementById('timerDisplay').style.display = 'none';
+  document.getElementById('center-area').innerHTML = `
+    <div style="font-size:22px;font-weight:900;line-height:1.2;background:linear-gradient(135deg,#E8541A,#F59E0B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Sẵn sàng<br>chiến đấu?</div>`;
+  document.getElementById('main-content').innerHTML = `
+  <div class="card">
+    <div class="card-title">🤖 Đăng ký tham gia</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:12px;font-weight:600">Nhập tên của bạn để vào phòng chờ và lên bảng xếp hạng!</div>
+    <input class="name-input" id="nameInput" placeholder="Tên của bạn..." maxlength="20" autocomplete="off"/>
+    <button class="btn btn-primary pulse-ring" style="width:100%;margin-bottom:8px" onclick="joinGame()">🚀 Vào phòng chờ</button>
+    <button class="btn btn-secondary" style="width:100%" onclick="openBoard()">🏆 Xem bảng xếp hạng</button>
+  </div>
+  <div class="teacher-panel">
+    <div class="teacher-label">👩‍🏫 Dành cho Giáo viên</div>
+    <div style="font-size:12px;color:#5B21B6;margin-bottom:10px;font-weight:600">Bấm nút bên dưới khi học sinh đã vào phòng chờ đầy đủ. Trò chơi sẽ bắt đầu cho tất cả cùng lúc!</div>
+    <button class="btn btn-teacher" onclick="teacherStartGame()">▶ Bắt đầu cho tất cả học sinh</button>
+  </div>`;
+  document.getElementById('nameInput').addEventListener('keydown', e => { if(e.key==='Enter') joinGame(); });
+}
+
+async function joinGame() {
+  const name = document.getElementById('nameInput').value.trim();
+  if(!name){ document.getElementById('nameInput').style.borderColor='#DC2626'; document.getElementById('nameInput').focus(); return; }
+  state.playerName = name;
+  state.codes = ['',''];
+  state.scores = [null,null];
+  state.feedbacks = [null,null];
+  state.currentQ = 0;
+  await joinWaiting(name);
+  renderWaitingScreen();
+}
+
+// -- WAITING SCREEN --
+async function renderWaitingScreen() {
+  state.screen = 'waiting';
+  setRobotMood('idle');
+  document.getElementById('center-area').innerHTML = `
+    <div style="font-size:15px;font-weight:900;color:var(--accent)">Phòng chờ</div>
+    <div style="font-size:11px;color:var(--muted);font-weight:600">Đợi giáo viên bắt đầu...</div>`;
+  const players = await getWaitingPlayers();
+  document.getElementById('main-content').innerHTML = `
+  <div class="card wait-screen">
+    <div class="wait-title">🕐 Đang chờ bắt đầu...</div>
+    <div class="wait-sub">Giáo viên sẽ bấm nút để bắt đầu cùng lúc</div>
+
+    <div style="background:var(--surface2);border-radius:14px;padding:12px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">🤖 Học sinh trong phòng</div>
+      <div class="wait-room" id="waitGrid">
+        ${players.map(name => `
+          <div class="player-robo-card${name===state.playerName?' me':''}">
+            ${name===state.playerName?'<div class="ready-badge">Bạn</div>':''}
+            ${makeRobo(name, 50, 'wave')}
+            <div class="player-name-tag">${name.length>8?name.slice(0,8)+'…':name}</div>
+            <div class="player-status ready">✓ Sẵn sàng</div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <div style="font-size:13px;color:var(--muted);font-weight:700;text-align:center">
+      ⏱ Thời gian thi: <span style="color:var(--accent)">5 phút</span>
+    </div>
+  </div>`;
+  startWaitPoll();
+}
+
+// -- TEACHER START --
+async function teacherStartGame() {
+  if(!confirm('Xác nhận bắt đầu trò chơi cho tất cả học sinh?')) return;
+  await setGameStarted(true);
+  alert('✅ Đã bắt đầu! Học sinh đang vào cuộc...');
+}
+
+// -- COUNTDOWN --
+function startCountdown() {
+  if(waitPollInterval) { clearInterval(waitPollInterval); waitPollInterval = null; }
+  let n = 3;
+  const overlay = document.createElement('div');
+  overlay.className = 'countdown-overlay';
+  overlay.id = 'countdownOverlay';
+  overlay.innerHTML = `<div class="countdown-num" id="countNum">${n}</div><div class="countdown-label">Chuẩn bị...</div>`;
+  document.body.appendChild(overlay);
+
+  const tick = () => {
+    n--;
+    if(n > 0) {
+      const el = document.getElementById('countNum');
+      if(el) { el.style.animation='none'; el.offsetWidth; el.style.animation='count-pop .8s ease-out'; el.textContent=n; }
+      setTimeout(tick, 900);
+    } else {
+      const el = document.getElementById('countNum');
+      if(el) { el.style.animation='none'; el.offsetWidth; el.style.animation='count-pop .5s ease-out'; el.textContent='🚀 Bắt đầu!'; el.style.fontSize='48px'; }
+      setTimeout(() => {
+        overlay.remove();
+        state.startTime = Date.now();
+        state.screen = 'game';
+        renderGameScreen();
+        startTimer(() => timeUp());
+      }, 900);
+    }
+  };
+  setTimeout(tick, 900);
+}
+
+// -- TIME UP --
+async function timeUp() {
+  if(state.screen === 'finish') return;
+  setRobotMood('idle');
+  const totalScore = (state.scores[0]||0)+(state.scores[1]||0);
+  const elapsed = Math.round((Date.now()-state.startTime)/1000);
+  await saveScore(state.playerName, totalScore, elapsed);
+  state.screen = 'finish';
+  renderFinishScreen(totalScore, elapsed, true);
+}
+
+// -- GAME SCREEN --
+function renderGameScreen() {
+  const q = questions[state.currentQ];
+  document.getElementById('center-area').innerHTML = `
+    <div style="font-size:12px;color:var(--muted);font-weight:700">Câu <span style="color:var(--accent);font-weight:900">${state.currentQ+1}</span>/${questions.length}</div>
+    <div style="font-size:14px;font-weight:900;color:var(--accent);margin-top:2px">${q.title}</div>`;
+
+  document.getElementById('main-content').innerHTML = `
+  <div class="progress-bar"><div class="progress-fill" style="width:${(state.currentQ/questions.length)*100}%"></div></div>
+  <div class="tab-row">
+    ${questions.map((qq,i)=>`<button class="tab ${i===state.currentQ?'active':''} ${state.scores[i]!==null?'done':''}" onclick="switchQ(${i})">${state.scores[i]!==null?'✓ ':''} Câu ${i+1}</button>`).join('')}
+  </div>
+  <div class="card" id="q-card">
+    <div class="question-badge">📝 Câu ${state.currentQ+1} / ${questions.length}</div>
+    <div class="question-text">${q.desc}</div>
+    <div class="editor-wrap">
+      <div class="editor-label" style="display:flex;align-items:center">
+        💻 Code của bạn
+        <button class="hint-btn" onclick="toggleHint()">💡 Gợi ý</button>
+      </div>
+      <div class="hint-box" id="hint-box"><pre style="margin:0;white-space:pre-wrap">${q.hint}</pre></div>
+      <textarea id="codeEditor" placeholder="${q.placeholder}">${state.codes[state.currentQ]}</textarea>
+    </div>
+    <div id="result-area"></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="clearCode()">🗑 Xoá</button>
+      <button class="btn btn-primary" id="submitBtn" onclick="submitCode()" ${state.submitting?'disabled':''}>
+        ${state.submitting?`<span class="loading-dots"><span></span><span></span><span></span></span> AI đang chấm...`:'🚀 Nộp bài'}
+      </button>
+    </div>
+    ${state.currentQ<questions.length-1 && state.scores[state.currentQ]!==null ?
+      `<div class="btn-row" style="margin-top:6px"><button class="btn btn-next" onclick="switchQ(${state.currentQ+1})">Câu tiếp theo →</button></div>`:
+      state.currentQ===questions.length-1 && state.scores.every(s=>s!==null) ?
+      `<div class="btn-row" style="margin-top:6px"><button class="btn btn-next" onclick="finishGame()">🏁 Xem kết quả</button></div>`:''
+    }
+  </div>`;
+
+  if(state.scores[state.currentQ]!==null) showStoredResult();
+  document.getElementById('codeEditor').addEventListener('input', e => { state.codes[state.currentQ] = e.target.value; });
+}
+
+function switchQ(i) {
+  state.codes[state.currentQ] = document.getElementById('codeEditor')?.value || state.codes[state.currentQ];
+  state.currentQ = i;
+  renderGameScreen();
+}
+
+function toggleHint() {
+  document.getElementById('hint-box').classList.toggle('show');
+}
+
+function clearCode() {
+  document.getElementById('codeEditor').value = '';
+  state.codes[state.currentQ] = '';
+}
+
+function showStoredResult() {
+  const fb = state.feedbacks[state.currentQ];
+  const sc = state.scores[state.currentQ];
+  if(!fb) return;
+  const pass = sc >= 5;
+  const ed = document.getElementById('codeEditor');
+  if(ed) ed.className = pass?'success':'error';
+  document.getElementById('result-area').innerHTML=`
+  <div class="result-box show ${pass?'pass':'fail'}">
+    <div class="result-score ${pass?'pass':'fail'}">${fb.emoji} ${sc}/10</div>
+    <div class="result-fb">${fb.feedback}</div>
+  </div>`;
+}
+
+async function submitCode() {
+  const code = document.getElementById('codeEditor').value.trim();
+  if(!code){alert('Hãy viết code trước nhé! 💻');return;}
+  state.codes[state.currentQ] = code;
+  state.submitting = true;
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('submitBtn').innerHTML = `<span class="loading-dots"><span></span><span></span><span></span></span> AI đang chấm...`;
+  try {
+    const result = await gradeCode(code, state.currentQ);
+    state.scores[state.currentQ] = result.score;
+    state.feedbacks[state.currentQ] = result;
+    if(result.pass) { setRobotMood('excited'); emojiRain(['✅','🎉','⭐','🔥']); }
+    else { setRobotMood('idle'); }
+    setTimeout(()=>setRobotMood('idle'), 3000);
+  } catch(e) {
+    state.scores[state.currentQ] = 5;
+    state.feedbacks[state.currentQ] = {score:5, pass:true, feedback:'Không thể kết nối AI chấm điểm. Điểm tạm thời: 5/10 🤔', emoji:'🤔'};
+  }
+  state.submitting = false;
+  renderGameScreen();
+}
+
+async function finishGame() {
+  stopTimer();
+  const totalScore = (state.scores[0]||0)+(state.scores[1]||0);
+  const elapsed = Math.round((Date.now()-state.startTime)/1000);
+  await saveScore(state.playerName, totalScore, elapsed);
+  state.screen = 'finish';
+  renderFinishScreen(totalScore, elapsed, false);
+}
+
+// -- FINISH SCREEN --
+async function renderFinishScreen(totalScore, elapsed, isTimeUp) {
+  setRobotMood('excited');
+  emojiRain(['🎊','🌟','🏆','🎉','🔥','⭐'], 24);
+  const grade = totalScore>=18?'Xuất sắc! 🌟':totalScore>=14?'Giỏi lắm! 🎉':totalScore>=10?'Khá tốt! 👍':'Cố gắng thêm! 💪';
+  const board = await getBoard();
+  const rank = board.findIndex(p=>p.name===state.playerName)+1;
+
+  document.getElementById('center-area').innerHTML=`<div style="font-size:32px">🎊</div>`;
+  document.getElementById('main-content').innerHTML=`
+  <div class="card finish-banner">
+    <div>${makeRobot(state.playerName, 72, 'excited')}</div>
+    <div class="finish-title" style="margin-top:10px">${grade}</div>
+    <div class="finish-sub">${state.playerName} · ${elapsed}s${isTimeUp?' · ⏰ Hết giờ':''} · Hạng ${rank>0?'#'+rank:'?'}</div>
+    <div class="total-score">${totalScore}</div>
+    <div style="font-size:14px;color:var(--muted);margin-bottom:16px;font-weight:700">/ 20 điểm</div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:16px">
+      ${state.scores.map((s,i)=>`
+        <div style="text-align:center;background:var(--surface2);border-radius:12px;padding:10px 18px;border:1.5px solid var(--border)">
+          <div style="font-size:11px;color:var(--muted);font-weight:700">Câu ${i+1}</div>
+          <div style="font-size:22px;font-weight:900;color:${(s||0)>=7?'#16A34A':(s||0)>=5?'#F59E0B':'#DC2626'}">${s||0}<span style="font-size:13px;color:var(--muted)">/10</span></div>
+        </div>`).join('')}
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="openBoard()">🏆 Bảng XH</button>
+      <button class="btn btn-primary" onclick="playAgain()">🔄 Làm lại</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
+      🏆 Bảng xếp hạng lớp
+      <button onclick="renderFinishScreen(${totalScore},${elapsed},${isTimeUp})" style="background:none;border:none;color:var(--accent);font-size:12px;cursor:pointer;font-family:inherit;font-weight:700">↻</button>
+    </div>
+    <div id="finish-board"></div>
+  </div>`;
+  renderBoardInto('finish-board', state.playerName, totalScore);
+}
+
+// -- TOTAL SCORE BOARD --
+async function openBoard() {
+  state.screen = 'totalboard';
+  setRobotMood('idle');
+  document.getElementById('center-area').innerHTML=`<div style="font-size:15px;font-weight:900;color:var(--gold)">🏆 Bảng vàng</div>`;
+  document.getElementById('main-content').innerHTML=`
+  <div class="card score-board-screen">
+    <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
+      🏆 Tổng điểm toàn lớp
+      <button onclick="openBoard()" style="background:none;border:none;color:var(--accent);font-size:12px;cursor:pointer;font-family:inherit;font-weight:700">↻ Tải lại</button>
+    </div>
+    <div id="total-board"><div style="color:var(--muted);text-align:center;padding:20px;font-weight:600">Đang tải...</div></div>
+    <div class="btn-row" style="margin-top:12px">
+      <button class="btn btn-secondary" onclick="teacherResetGame()" style="font-size:12px">🔄 Reset trò chơi</button>
+      <button class="btn btn-primary" onclick="playAgain()">🎮 Chơi ngay</button>
+    </div>
+  </div>`;
+  renderBoardInto('total-board', state.playerName, (state.scores[0]||0)+(state.scores[1]||0));
+}
+
+async function renderBoardInto(containerId, myName, myScore) {
+  const board = await getBoard();
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  if(!board.length) { el.innerHTML='<div style="color:var(--muted);text-align:center;padding:20px;font-weight:600">Chưa có kết quả. Hãy là người đầu tiên! 🚀</div>'; return; }
+  const medals=['🥇','🥈','🥉'];
+  const scoreColors = (score) => score>=18?'#D97706':score>=14?'#16A34A':score>=10?'#2563EB':'#DC2626';
+  el.innerHTML = `<div class="leaderboard score-board-screen">${board.map((p,i)=>{
+    const isMe = p.name===myName;
+    const sc = i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    return `<div class="lb-row${isMe?' me':''}" style="${isMe?'border-color:var(--accent);background:rgba(232,84,26,.07)':''}">
+      <span class="lb-rank">${medals[i]||'<span style="font-size:13px;font-weight:800;color:var(--muted)">#'+(i+1)+'</span>'}</span>
+      <div style="margin-right:8px;flex-shrink:0">${makeRobot(p.name, 32, 'idle')}</div>
+      <span class="lb-name">${p.name}${isMe?' ⭐':''}</span>
+      <div style="text-align:right">
+        <div class="lb-score ${sc}" style="color:${sc?'':scoreColors(p.score)}">${p.score}<span style="font-size:11px;font-weight:600;color:var(--muted)">/20</span></div>
+        <div class="lb-time">${p.time}s · ${p.ts}</div>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+async function teacherResetGame() {
+  if(!confirm('⚠️ Reset toàn bộ trò chơi? Bảng điểm và phòng chờ sẽ bị xoá.')) return;
+  await resetGameFlag();
+  await clearWaiting();
+  await window.storage.set(STORAGE_KEY, '[]', true).catch(()=>{});
+  alert('✅ Đã reset! Học sinh có thể đăng ký lại.');
+}
+
+function playAgain() {
+  stopTimer();
+  state = {...state, screen:'name', playerName:'', currentQ:0, codes:['',''], scores:[null,null], feedbacks:[null,null], startTime:null, submitting:false};
+  setRobotMood('idle');
+  document.getElementById('timerDisplay').style.display='none';
+  document.getElementById('timerFill').style.width='100%';
+  renderNameScreen();
+}
+
+// ===== INIT =====
+renderNameScreen();
+</script>
+</body>
+</html>
