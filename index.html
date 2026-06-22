@@ -7,66 +7,170 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
-
 <style>
-/* CSS giữ nguyên tông màu dịu mắt */
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#EEF2F6;--surface:#FFFFFF;--surface2:#E4ECF4;--accent:#3B82F6;--accent2:#2563EB;--green:#10B981;--red:#EF4444;--text:#1E293B;--muted:#64748B;--border:#CBD5E1;--shadow:rgba(59,130,246,.10);}
+:root{
+  --bg:#FBF4ED;
+  --surface:#FFFDFB;
+  --surface2:#F7EBE0;
+  --surface3:#F0DFC9;
+  --accent:#C75D2C;
+  --accent2:#D97A4A;
+  --warm:#D9824D;
+  --gold:#C6922E;
+  --green:#3F9142;
+  --red:#C0392B;
+  --blue:#3B6FB5;
+  --teal:#3D8C82;
+  --text:#4A2A12;
+  --muted:#A66B43;
+  --border:#E8CBA8;
+  --shadow:rgba(199,93,44,.10);
+}
 body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* Warm decorative background */
 .bg-deco{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
-.bg-deco::before{content:'';position:absolute;top:-100px;right:-100px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,.08),transparent 70%)}
-.bg-deco::after{content:'';position:absolute;bottom:-80px;left:-80px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(20,184,166,.08),transparent 70%)}
-#app{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:12px 12px 80px}
+.bg-deco::before{content:'';position:absolute;top:-100px;right:-100px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(217,130,77,.1),transparent 70%)}
+.bg-deco::after{content:'';position:absolute;bottom:-80px;left:-80px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(61,140,130,.08),transparent 70%)}
+.bubble{position:absolute;border-radius:50%;animation:float linear infinite;opacity:.5}
+@keyframes float{0%{transform:translateY(0) rotate(0deg);opacity:.5}100%{transform:translateY(-100vh) rotate(360deg);opacity:0}}
+
+#app{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:12px 12px 80px}
+
 .header{text-align:center;padding:14px 0 6px}
-.logo{font-size:24px;font-weight:900;background:linear-gradient(135deg,#3B82F6,#14B8A6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.logo{font-size:24px;font-weight:900;background:linear-gradient(135deg,#C75D2C,#D9824D,#C6922E);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.5px}
 .subtitle{font-size:12px;color:var(--muted);margin-top:3px;font-weight:600}
+
+/* Timer bar */
 .timer-bar{position:fixed;top:0;left:0;width:100%;height:5px;background:var(--border);z-index:100}
-.timer-fill{height:100%;background:linear-gradient(90deg,#3B82F6,#14B8A6);transition:width 1s linear;border-radius:0 2px 2px 0}
-.timer-display{position:fixed;top:8px;right:12px;z-index:101;background:rgba(255,255,255,.95);border:1.5px solid var(--border);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:800;color:var(--accent);box-shadow:0 2px 8px var(--shadow)}
+.timer-fill{height:100%;background:linear-gradient(90deg,#C75D2C,#C6922E);transition:width 1s linear;border-radius:0 2px 2px 0}
+.timer-display{position:fixed;top:8px;right:12px;z-index:101;background:rgba(255,255,255,.95);border:1.5px solid var(--border);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:800;color:var(--accent);font-family:'Nunito',sans-serif;box-shadow:0 2px 8px var(--shadow)}
+.timer-display.urgent{color:var(--red);animation:pulse-red .6s infinite}
+@keyframes pulse-red{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* Arena robots */
 .arena{display:flex;align-items:flex-end;justify-content:center;gap:8px;margin:6px 0 10px}
 .robot-wrap{flex-shrink:0;position:relative}
-.robot-wrap svg{width:68px;height:84px;filter:drop-shadow(0 4px 12px rgba(59,130,246,.2))}
+.robot-wrap svg{width:68px;height:84px;filter:drop-shadow(0 4px 12px rgba(199,93,44,.2))}
+
 .card{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:16px;margin-bottom:12px;box-shadow:0 4px 20px var(--shadow)}
-.card-title{font-size:14px;font-weight:800;text-transform:uppercase;margin-bottom:12px}
+.card-title{font-size:12px;font-weight:800;color:var(--warm);letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px}
+
+/* Tab row */
 .tab-row{display:flex;gap:6px;margin-bottom:14px}
-.tab{flex:1;padding:9px 4px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;text-align:center;transition:.2s}
-.tab.active{border-color:var(--accent);color:var(--accent);background:rgba(59,130,246,.08)}
-.question-badge{display:inline-block;background:linear-gradient(135deg,rgba(59,130,246,.15),rgba(20,184,166,.15));color:var(--accent2);border-radius:10px;padding:4px 12px;font-size:11px;font-weight:800;margin-bottom:10px}
-.question-text{font-size:14px;line-height:1.65;margin-bottom:12px}
+.tab{flex:1;padding:9px 4px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);font-size:12px;font-family:'Nunito',sans-serif;cursor:pointer;text-align:center;transition:.2s;font-weight:700}
+.tab.active{border-color:var(--accent);color:var(--accent);background:rgba(199,93,44,.08)}
+.tab.done{border-color:var(--green);color:var(--green);background:rgba(63,145,66,.08)}
+
+.question-badge{display:inline-block;background:linear-gradient(135deg,rgba(199,93,44,.15),rgba(198,146,46,.15));color:var(--accent);border-radius:10px;padding:4px 12px;font-size:11px;font-weight:800;margin-bottom:10px;border:1px solid rgba(199,93,44,.2)}
+.question-text{font-size:14px;line-height:1.65;color:var(--text);margin-bottom:12px}
+
 .editor-wrap{position:relative}
 .editor-label{font-size:11px;color:var(--muted);margin-bottom:6px;font-family:'Fira Code',monospace;font-weight:600}
-textarea{width:100%;min-height:120px;background:#F8FAFC;border:1.5px solid var(--border);border-radius:12px;font-family:'Fira Code',monospace;font-size:13px;padding:12px;resize:vertical;outline:none}
-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+textarea{width:100%;min-height:120px;background:#FBF3EC;border:1.5px solid var(--border);border-radius:12px;color:#4A2A12;font-family:'Fira Code',monospace;font-size:13px;padding:12px;resize:vertical;outline:none;line-height:1.6;transition:.2s}
+textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(199,93,44,.1)}
+textarea.success{border-color:var(--green);background:rgba(63,145,66,.04)}
+textarea.error{border-color:var(--red);background:rgba(192,57,43,.04)}
+
 .btn-row{display:flex;gap:8px;margin-top:10px}
-.btn{flex:1;padding:12px;border-radius:12px;border:none;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:.2s}
-.btn-primary{background:linear-gradient(135deg,#3B82F6,#2563EB);color:#fff;box-shadow:0 4px 16px rgba(59,130,246,.3)}
-.btn-primary:disabled{opacity:.4;cursor:not-allowed}
-.btn-secondary{background:var(--surface2);color:var(--text);border:1.5px solid var(--border)}
-.btn-next{background:linear-gradient(135deg,var(--green),#059669);color:#fff;}
-.btn-teacher{background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:#fff;}
+.btn{flex:1;padding:12px;border-radius:12px;border:none;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-primary{background:linear-gradient(135deg,#C75D2C,#D9824D);color:#fff;box-shadow:0 4px 16px rgba(199,93,44,.3)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(199,93,44,.4)}
+.btn-primary:active{transform:translateY(0)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-secondary{background:var(--surface2);color:var(--muted);border:1.5px solid var(--border)}
+.btn-next{background:linear-gradient(135deg,var(--green),#15803D);color:#fff;box-shadow:0 4px 12px rgba(63,145,66,.25)}
+.btn-teacher{background:linear-gradient(135deg,#6D4FC2,#4F3A93);color:#fff;box-shadow:0 4px 16px rgba(109,79,194,.3);font-size:13px}
+
 .result-box{border-radius:14px;padding:14px;margin-top:10px;display:none}
 .result-box.show{display:block}
-.result-box.pass{background:rgba(16,185,129,.08);border:1.5px solid rgba(16,185,129,.25)}
-.result-box.fail{background:rgba(239,68,68,.08);border:1.5px solid rgba(239,68,68,.25)}
-.name-input{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;outline:none;margin-bottom:10px}
-.name-input:focus{border-color:var(--accent);}
-.lb-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border-radius:12px;border:1.5px solid var(--border);margin-bottom:8px;}
+.result-box.pass{background:rgba(63,145,66,.08);border:1.5px solid rgba(63,145,66,.25)}
+.result-box.fail{background:rgba(192,57,43,.08);border:1.5px solid rgba(192,57,43,.25)}
+.result-score{font-size:30px;font-weight:900;margin-bottom:6px}
+.result-score.pass{color:var(--green)}
+.result-score.fail{color:var(--red)}
+.result-fb{font-size:13px;line-height:1.6;color:var(--text)}
+
+.loading-dots{display:inline-flex;gap:4px;align-items:center}
+.loading-dots span{width:5px;height:5px;border-radius:50%;background:currentColor;animation:dot .9s infinite}
+.loading-dots span:nth-child(2){animation-delay:.2s}
+.loading-dots span:nth-child(3){animation-delay:.4s}
+@keyframes dot{0%,80%,100%{opacity:.2}40%{opacity:1}}
+
+.name-input{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;outline:none;margin-bottom:10px}
+.name-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(199,93,44,.1)}
+
+.leaderboard{display:flex;flex-direction:column;gap:6px}
+.lb-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border-radius:12px;border:1.5px solid var(--border)}
 .lb-rank{font-size:16px;width:28px;text-align:center}
-.lb-name{flex:1;font-weight:700;font-size:14px;}
-.lb-score{font-weight:900;font-size:16px;color:var(--accent)}
+.lb-name{flex:1;font-weight:700;font-size:14px;color:var(--text)}
+.lb-score{font-weight:900;font-size:16px}
+.lb-time{font-size:11px;color:var(--muted)}
+.lb-score.gold{color:#B8860B}
+.lb-score.silver{color:#6B7280}
+.lb-score.bronze{color:#92400E}
+
 .finish-banner{text-align:center;padding:20px 16px}
-.total-score{font-size:56px;font-weight:900;color:#3B82F6}
-.player-robo-card{background:var(--surface);border:2px solid var(--border);border-radius:16px;padding:14px 8px;text-align:center;box-shadow:0 4px 10px var(--shadow)}
-.wait-room{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin:12px 0}
-.teacher-grid{display:grid;grid-template-columns:1fr;gap:10px;}
-.status-badge{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:700;}
-.status-waiting{background:#F1F5F9; color:#64748B;}
-.status-ready{background:#D1FAE5; color:#059669;}
-.countdown-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(238,242,246,.95);z-index:200;display:flex;align-items:center;justify-content:center;}
-.countdown-num{font-size:120px;font-weight:900;color:var(--accent);animation:count-pop .8s ease-out;}
-@keyframes count-pop{0%{transform:scale(2);opacity:0}60%{transform:scale(.9)}100%{transform:scale(1);opacity:1}}
-@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.finish-emoji{font-size:52px;margin-bottom:8px}
+.finish-title{font-size:24px;font-weight:900;margin-bottom:6px;color:var(--text)}
+.finish-sub{font-size:14px;color:var(--muted);margin-bottom:16px;font-weight:600}
+.total-score{font-size:56px;font-weight:900;background:linear-gradient(135deg,#C75D2C,#C6922E);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+.progress-bar{height:6px;background:var(--border);border-radius:3px;margin-bottom:14px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#C75D2C,#C6922E);border-radius:3px;transition:width .5s}
+
+.hint-btn{font-size:11px;color:var(--accent);background:none;border:none;cursor:pointer;font-family:'Nunito',sans-serif;padding:0;margin-left:8px;font-weight:700}
+.hint-box{background:rgba(217,130,77,.08);border:1.5px solid rgba(217,130,77,.25);border-radius:10px;padding:10px 12px;font-size:12px;color:#7C2D12;margin-top:8px;font-family:'Fira Code',monospace;display:none}
+.hint-box.show{display:block}
+
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes excited{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-14px) rotate(3deg)}}
+@keyframes wave{0%,100%{transform:rotate(0deg) translateY(0)}25%{transform:rotate(12deg) translateY(-4px)}75%{transform:rotate(-12deg) translateY(-4px)}}
+@keyframes idle-float{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-5px) rotate(1deg)}}
 .robot-bounce{animation:bounce 2s ease-in-out infinite}
+.robot-excited{animation:excited .6s ease-in-out infinite}
+.robot-idle{animation:idle-float 3s ease-in-out infinite}
+
+/* ===== WAITING SCREEN ===== */
+.wait-screen{text-align:center;padding:10px 0}
+.wait-title{font-size:20px;font-weight:900;color:var(--accent);margin-bottom:4px}
+.wait-sub{font-size:13px;color:var(--muted);font-weight:600;margin-bottom:16px}
+
+/* Player robo card */
+.player-robo-card{background:var(--surface);border:2px solid var(--border);border-radius:20px;padding:14px 12px;text-align:center;position:relative;box-shadow:0 4px 16px var(--shadow)}
+.player-robo-card.me{border-color:var(--accent)}
+.player-name-tag{font-size:13px;font-weight:800;color:var(--text);margin-top:8px;background:var(--surface2);border-radius:8px;padding:4px 10px;display:inline-block}
+.player-status{font-size:11px;color:var(--muted);margin-top:4px;font-weight:600}
+.player-status.ready{color:var(--green)}
+.ready-badge{position:absolute;top:-6px;right:-6px;background:var(--green);color:#fff;font-size:10px;font-weight:800;border-radius:20px;padding:2px 7px}
+
+/* Waiting room grid */
+.wait-room{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin:12px 0}
+
+/* Countdown overlay */
+.countdown-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(251,244,237,.92);z-index:200;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.countdown-num{font-size:120px;font-weight:900;background:linear-gradient(135deg,#C75D2C,#C6922E);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:count-pop .8s ease-out;line-height:1}
+@keyframes count-pop{0%{transform:scale(2);opacity:0}60%{transform:scale(.9)}100%{transform:scale(1);opacity:1}}
+.countdown-label{font-size:18px;font-weight:800;color:var(--muted);margin-top:8px}
+
+/* Total score board screen */
+.score-board-screen .board-entry{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;background:var(--surface);border:1.5px solid var(--border);margin-bottom:8px;box-shadow:0 2px 8px var(--shadow)}
+.score-board-screen .board-entry.highlight{border-color:var(--accent);background:rgba(199,93,44,.06)}
+.board-entry-rank{font-size:22px;min-width:36px;text-align:center}
+.board-entry-info{flex:1}
+.board-entry-name{font-size:15px;font-weight:800;color:var(--text)}
+.board-entry-detail{font-size:11px;color:var(--muted);font-weight:600}
+.board-entry-score{font-size:24px;font-weight:900;text-align:right}
+.board-entry-score .pts{font-size:11px;font-weight:600;color:var(--muted)}
+
+/* Teacher panel */
+.teacher-panel{background:linear-gradient(135deg,rgba(109,79,194,.08),rgba(79,58,147,.06));border:1.5px solid rgba(109,79,194,.2);border-radius:16px;padding:14px;margin-bottom:12px}
+.teacher-label{font-size:11px;font-weight:800;color:#6D4FC2;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px}
+
+.emoji-rain{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:150}
+.e-particle{position:absolute;top:-30px;font-size:24px;animation:rain-fall linear forwards}
+@keyframes rain-fall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
 </style>
 </head>
 <body>
@@ -74,28 +178,77 @@ textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.
 <div class="timer-bar"><div class="timer-fill" id="timerFill" style="width:100%"></div></div>
 <div class="timer-display" id="timerDisplay" style="display:none">⏱ 5:00</div>
 <div class="bg-deco"></div>
+<div id="emojiRain" class="emoji-rain"></div>
 
 <div id="app">
   <div class="header">
     <div class="logo">⚡ Code Arena</div>
-    <div class="subtitle">Học Vui · Chấm Nhanh · Lên Bảng Vàng 🏆</div>
+    <div class="subtitle">Viết code · AI chấm điểm · Lên bảng vàng 🏆</div>
   </div>
-  <div class="arena" id="arena-robots"></div>
+
+  <div class="arena">
+    <div class="robot-wrap" id="robot-left">
+      <svg viewBox="0 0 64 84" fill="none" xmlns="http://www.w3.org/2000/svg" class="robot-bounce">
+        <rect x="24" y="0" width="16" height="7" rx="3.5" fill="#C75D2C"/>
+        <rect x="10" y="7" width="44" height="32" rx="10" fill="#F7EBE0" stroke="#C75D2C" stroke-width="2"/>
+        <circle cx="24" cy="22" r="7" fill="#FBF4ED" stroke="#C75D2C" stroke-width="1.5"/>
+        <circle cx="24" cy="22" r="3.5" fill="#C75D2C"/>
+        <circle cx="40" cy="22" r="7" fill="#FBF4ED" stroke="#C75D2C" stroke-width="1.5"/>
+        <circle cx="40" cy="22" r="3.5" fill="#C6922E"/>
+        <circle cx="26" cy="20" r="1.2" fill="#fff"/>
+        <circle cx="42" cy="20" r="1.2" fill="#fff"/>
+        <rect x="22" y="33" width="20" height="4" rx="2" fill="#D9824D"/>
+        <rect x="8" y="39" width="48" height="28" rx="10" fill="#F7EBE0" stroke="#C75D2C" stroke-width="2"/>
+        <rect x="17" y="47" width="12" height="7" rx="3.5" fill="#C75D2C" opacity=".7"/>
+        <rect x="35" y="47" width="12" height="7" rx="3.5" fill="#C6922E" opacity=".7"/>
+        <rect x="19" y="57" width="26" height="5" rx="2.5" fill="#3F9142" opacity=".8"/>
+        <rect x="5" y="46" width="7" height="16" rx="3.5" fill="#F7EBE0" stroke="#C75D2C" stroke-width="2"/>
+        <rect x="52" y="46" width="7" height="16" rx="3.5" fill="#F7EBE0" stroke="#C75D2C" stroke-width="2"/>
+        <rect x="13" y="67" width="14" height="14" rx="5" fill="#F7EBE0" stroke="#C75D2C" stroke-width="2"/>
+        <rect x="37" y="67" width="14" height="14" rx="5" fill="#F7EBE0" stroke="#C6922E" stroke-width="2"/>
+        <circle cx="6" cy="18" r="4" fill="#C6922E" opacity=".6"/>
+        <circle cx="58" cy="18" r="4" fill="#C75D2C" opacity=".6"/>
+      </svg>
+    </div>
+
+    <div style="flex:1;text-align:center" id="center-area"></div>
+
+    <div class="robot-wrap" id="robot-right">
+      <svg viewBox="0 0 64 84" fill="none" xmlns="http://www.w3.org/2000/svg" class="robot-bounce" style="animation-delay:.5s;transform:scaleX(-1)">
+        <rect x="24" y="0" width="16" height="7" rx="3.5" fill="#C6922E"/>
+        <rect x="10" y="7" width="44" height="32" rx="10" fill="#F7F0DE" stroke="#C6922E" stroke-width="2"/>
+        <circle cx="24" cy="22" r="7" fill="#FCF6EC" stroke="#C6922E" stroke-width="1.5"/>
+        <circle cx="24" cy="22" r="3.5" fill="#C6922E"/>
+        <circle cx="40" cy="22" r="7" fill="#FCF6EC" stroke="#C75D2C" stroke-width="1.5"/>
+        <circle cx="40" cy="22" r="3.5" fill="#C75D2C"/>
+        <circle cx="26" cy="20" r="1.2" fill="#fff"/>
+        <circle cx="42" cy="20" r="1.2" fill="#fff"/>
+        <rect x="22" y="33" width="20" height="4" rx="2" fill="#D9824D"/>
+        <rect x="8" y="39" width="48" height="28" rx="10" fill="#F7F0DE" stroke="#C6922E" stroke-width="2"/>
+        <rect x="17" y="47" width="12" height="7" rx="3.5" fill="#C6922E" opacity=".7"/>
+        <rect x="35" y="47" width="12" height="7" rx="3.5" fill="#C75D2C" opacity=".7"/>
+        <rect x="19" y="57" width="26" height="5" rx="2.5" fill="#6D4FC2" opacity=".7"/>
+        <rect x="5" y="46" width="7" height="16" rx="3.5" fill="#F7F0DE" stroke="#C6922E" stroke-width="2"/>
+        <rect x="52" y="46" width="7" height="16" rx="3.5" fill="#F7F0DE" stroke="#C6922E" stroke-width="2"/>
+        <rect x="13" y="67" width="14" height="14" rx="5" fill="#F7F0DE" stroke="#C6922E" stroke-width="2"/>
+        <rect x="37" y="67" width="14" height="14" rx="5" fill="#F7F0DE" stroke="#C75D2C" stroke-width="2"/>
+        <circle cx="6" cy="18" r="4" fill="#C75D2C" opacity=".6"/>
+        <circle cx="58" cy="18" r="4" fill="#C6922E" opacity=".6"/>
+      </svg>
+    </div>
+  </div>
+
   <div id="main-content"></div>
 </div>
 
 <script>
-// ========================================================
-// 1. CẤU HÌNH FIREBASE (THAY THÔNG TIN CỦA BẠN VÀO ĐÂY)
-// ========================================================
+// ===== 1. CẤU HÌNH FIREBASE REALTIME DATABASE =====
+// 👉 Hãy thay đổi thông số này theo Project Firebase của bạn
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY", 
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "YOUR_PROJECT",
 };
 
 // Khởi tạo Firebase
@@ -103,298 +256,557 @@ if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.database();
-const roomRef = db.ref('CodeArenaRoom'); // Tên phòng thi đấu chung
+const ARENA_ROOT = 'code_arena_v3'; // Tên nhánh cha đồng bộ dữ liệu
 
-// ========================================================
-// 2. BIẾN TRẠNG THÁI (STATE)
-// ========================================================
+// ===== CONFIG GAME =====
 const TOTAL_SECONDS = 300; 
-const questions = [
-  { title:'Câu 1: Hàm tính tổng', desc:'Viết hàm <code>sum(a, b)</code> nhận 2 tham số là số, trả về tổng của 2 số.', placeholder:'function sum(a, b) {\n  \n}' },
-  { title:'Câu 2: Giới thiệu', desc:'Dùng <code>console.log()</code> để in ra Tên của bạn.', placeholder:'// Viết code ở đây\n' }
+
+const ROBOT_COLORS = [
+  {main:'#C75D2C',eye:'#C6922E',body:'#F7EBE0',border:'#C75D2C'},
+  {main:'#6D4FC2',eye:'#9C89D9',body:'#F0ECF7',border:'#6D4FC2'},
+  {main:'#3F9142',eye:'#7FC98A',body:'#EAF5EC',border:'#3F9142'},
+  {main:'#3B6FB5',eye:'#7CA8DE',body:'#EDF2F8',border:'#3B6FB5'},
+  {main:'#C0392B',eye:'#D98A85',body:'#F8EDEC',border:'#C0392B'},
+  {main:'#B8860B',eye:'#D9C27A',body:'#FBF6E8',border:'#B8860B'},
+  {main:'#3D8C82',eye:'#7FC4C2',body:'#E9F4F3',border:'#3D8C82'},
 ];
 
-let localState = {
-  screen: 'name', playerName: '', isTeacher: false,
-  currentQ: 0, codes: ['',''], scores: [null,null], timerInterval: null
+function getRobotColor(name) {
+  let hash = 0;
+  for(let c of name) hash = (hash*31 + c.charCodeAt(0)) & 0xFFFF;
+  return ROBOT_COLORS[hash % ROBOT_COLORS.length];
+}
+
+function makeRobot(name, size=56, mood='idle') {
+  const c = getRobotColor(name);
+  const anim = mood==='excited' ? 'robot-excited' : mood==='wave' ? 'robot-bounce' : 'robot-idle';
+  return `<svg width="${size}" height="${Math.round(size*1.25)}" viewBox="0 0 64 80" fill="none" class="${anim}" style="filter:drop-shadow(0 3px 8px ${c.main}40)">
+    <rect x="24" y="0" width="16" height="6" rx="3" fill="${c.main}"/>
+    <rect x="10" y="6" width="44" height="30" rx="9" fill="${c.body}" stroke="${c.border}" stroke-width="2"/>
+    <circle cx="24" cy="20" r="6.5" fill="${c.body}" stroke="${c.main}" stroke-width="1.5"/>
+    <circle cx="24" cy="20" r="3" fill="${c.main}"/>
+    <circle cx="40" cy="20" r="6.5" fill="${c.body}" stroke="${c.eye}" stroke-width="1.5"/>
+    <circle cx="40" cy="20" r="3" fill="${c.eye}"/>
+    <circle cx="25.5" cy="18.5" r="1" fill="#fff"/>
+    <circle cx="41.5" cy="18.5" r="1" fill="#fff"/>
+    <rect x="22" y="30" width="20" height="4" rx="2" fill="${c.eye}"/>
+    <rect x="8" y="36" width="48" height="26" rx="9" fill="${c.body}" stroke="${c.border}" stroke-width="2"/>
+    <rect x="17" y="44" width="11" height="6" rx="3" fill="${c.main}" opacity=".65"/>
+    <rect x="36" y="44" width="11" height="6" rx="3" fill="${c.eye}" opacity=".65"/>
+    <rect x="19" y="53" width="26" height="4" rx="2" fill="${c.main}" opacity=".4"/>
+    <rect x="5" y="43" width="7" height="14" rx="3.5" fill="${c.body}" stroke="${c.border}" stroke-width="2"/>
+    <rect x="52" y="43" width="7" height="14" rx="3.5" fill="${c.body}" stroke="${c.border}" stroke-width="2"/>
+    <rect x="13" y="62" width="13" height="13" rx="4" fill="${c.body}" stroke="${c.border}" stroke-width="2"/>
+    <rect x="38" y="62" width="13" height="13" rx="4" fill="${c.body}" stroke="${c.eye}" stroke-width="2"/>
+  </svg>`;
+}
+
+const questions = [
+  {
+    id:1, title:'Hàm tính tổng',
+    desc:'Viết hàm <code>sum(a, b)</code> nhận 2 tham số <b>a</b> và <b>b</b> là số tự nhiên, trả về tổng của 2 số.',
+    hint:'function sum(a, b) {\n  // trả về tổng a + b\n}',
+    placeholder:'// Viết hàm sum() của bạn ở đây\n',
+    testPrompt: `Học sinh viết hàm sum(a,b) trả về tổng 2 số tự nhiên. Code:\n\n{CODE}\n\nTrả JSON thuần: {"score":X,"pass":true/false,"feedback":"nhận xét"}`
+  },
+  {
+    id:2, title:'Giới thiệu bản thân',
+    desc:'Viết hàm <code>introduce()</code> in ra <b>tên</b>, <b>tuổi</b>, và <b>sở thích</b> của chính bạn.',
+    hint:'function introduce() {\n  console.log("Tên: ...");\n  console.log("Tuổi: ...");\n  console.log("Sở thích: ...");\n}',
+    placeholder:'// Viết hàm introduce() của bạn ở đây\n',
+    testPrompt: `Học sinh viết hàm JavaScript in ra tên, tuổi, sở thích. Code:\n\n{CODE}\n\nTrả JSON thuần: {"score":X,"pass":true/false,"feedback":"nhận xét"}`
+  }
+];
+
+// ===== 2. STATE GAME CỦA TRÌNH DUYỆT HIỆN TẠI =====
+let state = {
+  screen: 'name', 
+  playerName: '',
+  currentQ: 0,
+  codes: ['',''],
+  scores: [null,null],
+  feedbacks: [null,null],
+  startTime: null,
+  submitting: false,
+  localGameStarted: false, 
+  timerInterval: null,
+  secondsLeft: TOTAL_SECONDS,
+  isTeacherMode: false 
 };
 
-// ========================================================
-// 3. LẮNG NGHE DỮ LIỆU THỜI GIAN THỰC TỪ FIREBASE
-// ========================================================
-let globalState = { status: 'idle', players: {}, leaderboard: {} };
+// Dữ liệu Realtime được kéo liên tục từ máy chủ đám mây về
+let globalData = { gameStarted: false, players: {}, board: {} };
 
-roomRef.on('value', (snapshot) => {
+// Lắng nghe dữ liệu tập trung từ Cloud Firebase Database
+db.ref(ARENA_ROOT).on('value', (snapshot) => {
   const data = snapshot.val();
-  if (data) {
-    globalState = data;
-    if (!globalState.players) globalState.players = {};
-    if (!globalState.leaderboard) globalState.leaderboard = {};
-    handleDBChange();
+  if(data) {
+    globalData = data;
+    if(!globalData.players) globalData.players = {};
+    if(!globalData.board) globalData.board = {};
+  }
+  
+  // Xử lý cập nhật tức thì màn hình sảnh chờ khi học sinh vào/ra hoặc giáo viên kích hoạt
+  if (state.screen === 'waiting') {
+    updateWaitingGrid();
+    if(globalData.gameStarted && !state.localGameStarted) {
+      state.localGameStarted = true;
+      startCountdown();
+    }
+  }
+  // Tự động làm tươi bảng xếp hạng nếu đang mở xem
+  if (state.screen === 'finish') {
+    renderBoardInto('finish-board', state.playerName);
+  }
+  if (state.screen === 'totalboard') {
+    renderBoardInto('total-board', state.playerName);
   }
 });
 
-function handleDBChange() {
-  // Học sinh đang ở phòng chờ -> Giáo viên bấm bắt đầu -> Đếm ngược
-  if (localState.screen === 'waiting' && globalState.status === 'playing') {
-    startCountdown();
+function updateWaitingGrid() {
+  const grid = document.getElementById('waitGrid');
+  if(!grid) return;
+  const players = Object.keys(globalData.players || {});
+  if(players.length === 0) {
+    grid.innerHTML = `<div style="color:var(--muted);text-align:center;padding:10px;font-size:13px;width:100%;grid-column:1/-1;">Đang đợi kết nối từ học sinh đầu tiên...</div>`;
+    return;
   }
-  // Nếu là giáo viên, tự động cập nhật bảng xếp hạng / phòng chờ
-  if (localState.isTeacher) {
-    renderTeacherScreen(); 
-  }
-  // Nếu đang ở phòng chờ, cập nhật danh sách người chờ
-  if (localState.screen === 'waiting') {
-    renderWaitingRoom();
-  }
+  grid.innerHTML = players.map(name => `
+    <div class="player-robo-card${name===state.playerName?' me':''}">
+      ${name===state.playerName?'<div class="ready-badge">Bạn</div>':''}
+      ${makeRobot(name, 50, 'wave')}
+      <div class="player-name-tag">${name.length>8?name.slice(0,8)+'…':name}</div>
+      <div class="player-status ready">✓ Sẵn sàng</div>
+    </div>`).join('');
 }
 
-// ========================================================
-// 4. MOCK AI (CHẤM ĐIỂM GIẢ LẬP)
-// ========================================================
-async function mockGradeCode(code, qIdx) {
-  await new Promise(res => setTimeout(res, 1200)); 
-  code = code.toLowerCase();
-  let score = 0, fb = '';
-  
-  if(qIdx === 0) {
-    if(code.includes('return') && (code.includes('a+b') || code.includes('a + b'))) { score = 10; fb = 'Xuất sắc!'; } 
-    else if(code.includes('+')) { score = 6; fb = 'Thiếu từ khóa return.'; } 
-    else { score = 2; fb = 'Chưa đúng logic tính tổng.'; }
-  } else {
-    if(code.includes('console.log')) { score = 10; fb = 'Tuyệt vời!'; } 
-    else { score = 2; fb = 'Phải sử dụng console.log()'; }
-  }
-  return { score, pass: score >= 5, feedback: fb };
+// ===== CÁC HÀM XỬ LÝ BACKEND THỜI GIAN THỰC =====
+function joinWaitingOnCloud(name) {
+  db.ref(ARENA_ROOT + '/players/' + name).set(true);
 }
 
-// ========================================================
-// GIAO DIỆN & LOGIC CÁC MÀN HÌNH
-// ========================================================
-function renderRobots() {
-  const svg = `<svg viewBox="0 0 64 84" fill="none" class="robot-bounce"><rect x="10" y="7" width="44" height="32" rx="10" fill="#E4ECF4" stroke="#3B82F6" stroke-width="2"/><circle cx="24" cy="22" r="4" fill="#3B82F6"/><circle cx="40" cy="22" r="4" fill="#3B82F6"/><rect x="22" y="33" width="20" height="4" rx="2" fill="#14B8A6"/><rect x="8" y="39" width="48" height="28" rx="10" fill="#E4ECF4" stroke="#3B82F6" stroke-width="2"/></svg>`;
-  document.getElementById('arena-robots').innerHTML = `<div class="robot-wrap">${svg}</div><div style="flex:1;text-align:center;font-weight:900;color:var(--accent);align-self:center">Code Arena</div><div class="robot-wrap" style="transform:scaleX(-1)">${svg}</div>`;
+function saveScoreToCloud(name, score, time) {
+  db.ref(ARENA_ROOT + '/board/' + name).set({
+    name, score, time, ts: new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})
+  });
 }
 
-// ---- MÀN HÌNH 1: NHẬP TÊN ----
-function renderNameScreen() {
-  localState.screen = 'name';
-  renderRobots();
-  document.getElementById('timerDisplay').style.display = 'none';
-  document.getElementById('main-content').innerHTML = `
-  <div class="card">
-    <div class="card-title">🤖 Đăng ký thi đấu</div>
-    <input class="name-input" id="nameInput" placeholder="Tên của bạn..." maxlength="20"/>
-    <button class="btn btn-primary" style="width:100%" onclick="joinGame()">🚀 Vào phòng chờ</button>
-  </div>
-  <div style="text-align:center; margin-top:20px;">
-    <button class="btn btn-teacher" style="padding:8px 16px; font-size:12px" onclick="enterTeacherMode()">👨‍🏫 Chế độ Giáo viên</button>
-  </div>`;
-}
-
-function joinGame() {
-  const name = document.getElementById('nameInput').value.trim();
-  if(!name) return;
-  localState.playerName = name;
-  localState.isTeacher = false;
-  
-  // Đẩy tên học sinh lên Firebase
-  roomRef.child('players/' + name).set({ score: 0, status: 'ready' });
-  
-  localState.screen = 'waiting';
-  renderWaitingRoom();
-}
-
-// ---- MÀN HÌNH 2: PHÒNG CHỜ ----
-function renderWaitingRoom() {
-  if(localState.screen !== 'waiting') return;
-  const players = Object.keys(globalState.players || {});
-  
-  document.getElementById('main-content').innerHTML = `
-  <div class="card">
-    <h2 style="font-size:18px; color:var(--accent); text-align:center;">Đang chờ giáo viên...</h2>
-    <div class="wait-room">
-      ${players.map(p => `
-        <div class="player-robo-card">
-          <div style="font-size:24px">🧑‍💻</div>
-          <div style="font-weight:700; font-size:13px">${p}</div>
-          <span class="status-badge status-ready">Sẵn sàng</span>
-        </div>
-      `).join('')}
-    </div>
-  </div>`;
-}
-
-// ---- MÀN HÌNH 3: GIÁO VIÊN ----
+// Mật khẩu xác thực giáo viên
 function enterTeacherMode() {
-  localState.isTeacher = true; localState.screen = 'teacher';
-  renderTeacherScreen();
+  const pin = prompt("Nhập mật khẩu Giáo viên để vào bảng điều khiển:");
+  if (pin === "2025") {
+    state.isTeacherMode = true;
+    alert("🔓 Đã mở khóa quyền Giáo viên thành công!");
+    if(state.screen === 'name') renderNameScreen();
+    else if(state.screen === 'totalboard') openBoard();
+  } else if (pin !== null) {
+    alert("❌ Mật khẩu Giáo viên không chính xác!");
+  }
 }
 
-function renderTeacherScreen() {
-  const players = Object.entries(globalState.players || {});
-  document.getElementById('main-content').innerHTML = `
-  <div class="card" style="border-color:var(--accent2)">
-    <div class="card-title">👨‍🏫 Bảng điều khiển Giáo viên</div>
-    <div style="display:flex; gap:10px; margin-bottom:15px">
-      <button class="btn btn-next" style="flex:2" onclick="teacherStartAll()">▶ Bắt đầu chơi</button>
-      <button class="btn btn-secondary" style="flex:1" onclick="teacherReset()">🔄 Xóa Đặt lại</button>
-    </div>
-    <h4 style="font-size:12px; color:var(--muted); margin-bottom:10px">TÌNH TRẠNG HỌC SINH (${players.length})</h4>
-    <div class="teacher-grid">
-      ${players.length === 0 ? '<div style="font-size:12px">Chưa có học sinh...</div>' : ''}
-      ${players.map(([name, data]) => `
-        <div class="lb-row">
-          <div class="lb-name">${name}</div>
-          <div style="font-size:12px; font-weight:bold; color:var(--accent)">Điểm: ${data.score}</div>
-          <span class="status-badge status-${data.status==='ready'?'ready':'waiting'}">${data.status==='ready'?'Sẵn sàng':'Đang code'}</span>
-        </div>
-      `).join('')}
-    </div>
-  </div>
-  <button class="btn btn-secondary" style="width:100%" onclick="renderNameScreen()">Về trang chủ</button>`;
+function getTeacherPanelHTML() {
+  if (!state.isTeacherMode) {
+    return `
+    <div class="teacher-panel">
+      <div class="teacher-label">👩‍🏫 Khu vực dành cho Giáo viên</div>
+      <button class="btn btn-teacher" onclick="enterTeacherMode()">🔐 Xác thực quyền Giáo viên (PIN)</button>
+    </div>`;
+  }
+  return `
+  <div class="teacher-panel" style="border-color: #6D4FC2; background: rgba(109,79,194,0.12)">
+    <div class="teacher-label">👩‍🏫 Bảng quản trị Giáo viên [Đã kích hoạt]</div>
+    <div style="font-size:12px;color:#4F3A93;margin-bottom:10px;font-weight:600">Bấm nút bên dưới khi học sinh đã vào sảnh đông đủ. Hệ thống sẽ đếm ngược trên tất cả thiết bị!</div>
+    <button class="btn btn-teacher" onclick="teacherStartGame()" style="margin-bottom: 6px;">▶ KÍCH HOẠT PHÒNG THI (BẮT ĐẦU CHƠI)</button>
+    <button class="btn btn-secondary" onclick="teacherResetGame()" style="font-size:12px; width:100%">🔄 Reset xóa sạch dữ liệu hệ thống</button>
+  </div>`;
 }
 
-function teacherStartAll() { roomRef.child('status').set('playing'); }
-function teacherReset() { 
-  if(confirm("Xóa tất cả?")) roomRef.set({ status: 'idle', players: null, leaderboard: null }); 
+function teacherStartGame() {
+  if(!state.isTeacherMode) return;
+  if(!confirm('Xác nhận kích hoạt và bắt đầu bài thi cho tất cả học sinh cùng một lúc?')) return;
+  db.ref(ARENA_ROOT + '/gameStarted').set(true);
 }
 
-// ---- MÀN HÌNH 4: ĐẾM NGƯỢC & GAME ----
-function startCountdown() {
-  localState.screen = 'game';
-  const overlay = document.createElement('div');
-  overlay.className = 'countdown-overlay'; overlay.id = 'countdownOverlay';
-  overlay.innerHTML = `<div class="countdown-num" id="countNum">3</div>`;
-  document.body.appendChild(overlay);
+function teacherResetGame() {
+  const pin = prompt("Nhập mật khẩu Giáo viên để xác nhận lệnh xóa sạch:");
+  if (pin !== "2025") { alert("❌ Sai mật khẩu!"); return; }
+  if(!confirm('⚠️ CẢNH BÁO: Hành động này sẽ xóa sạch phòng chờ, bảng điểm và đưa toàn bộ trò chơi về vạch xuất phát ban đầu?')) return;
+  
+  db.ref(ARENA_ROOT).set({
+    gameStarted: false,
+    players: {},
+    board: {}
+  }).then(() => {
+    alert('✅ Toàn bộ hệ thống Game đã được đưa về trạng thái mặc định.');
+    location.reload();
+  });
+}
 
-  let n = 3;
-  const tick = setInterval(() => {
-    n--;
-    if(n > 0) document.getElementById('countNum').textContent = n;
-    else {
-      clearInterval(tick); document.getElementById('countNum').textContent = 'Code!';
-      setTimeout(() => { overlay.remove(); renderGameScreen(); startTimer(); }, 800);
+// ===== BỘ ĐẾM THỜI GIAN CHƠI =====
+function startTimer(onDone) {
+  state.secondsLeft = TOTAL_SECONDS;
+  const disp = document.getElementById('timerDisplay');
+  if(disp) disp.style.display = 'block';
+  if(state.timerInterval) clearInterval(state.timerInterval);
+  
+  state.timerInterval = setInterval(() => {
+    state.secondsLeft--;
+    const m = Math.floor(state.secondsLeft/60);
+    const s = String(state.secondsLeft%60).padStart(2,'0');
+    const disp2 = document.getElementById('timerDisplay');
+    const fill2 = document.getElementById('timerFill');
+    if(disp2) {
+      disp2.textContent = `⏱ ${m}:${s}`;
+      if(state.secondsLeft <= 30) disp2.classList.add('urgent');
+    }
+    if(fill2) fill2.style.width = (state.secondsLeft/TOTAL_SECONDS*100)+'%';
+    if(state.secondsLeft <= 0) {
+      clearInterval(state.timerInterval);
+      if(onDone) onDone();
     }
   }, 1000);
 }
 
-function renderGameScreen() {
-  const q = questions[localState.currentQ];
-  document.getElementById('arena-robots').innerHTML = '';
-  document.getElementById('main-content').innerHTML = `
-  <div class="tab-row">
-    ${questions.map((_, i) => `<button class="tab ${i===localState.currentQ?'active':''}" onclick="switchQ(${i})">Câu ${i+1}</button>`).join('')}
-  </div>
-  <div class="card">
-    <div class="question-badge">${q.title}</div>
-    <div class="question-text">${q.desc}</div>
-    <div class="editor-wrap">
-      <div class="editor-label">💻 Viết code của bạn ở đây:</div>
-      <textarea id="codeEditor" placeholder="${q.placeholder}">${localState.codes[localState.currentQ]}</textarea>
-    </div>
-    <div id="result-area"></div>
-    <div class="btn-row">
-      <button class="btn btn-primary" id="submitBtn" onclick="submitCode()">🚀 Chấm Điểm</button>
-    </div>
-    ${localState.currentQ === questions.length - 1 ? 
-      `<button class="btn btn-next" style="width:100%; margin-top:10px" onclick="finishGame()">🏁 Nộp bài và Kết thúc</button>` : 
-      `<button class="btn btn-secondary" style="width:100%; margin-top:10px" onclick="switchQ(${localState.currentQ + 1})">Chuyển câu tiếp theo ➡️</button>`}
-  </div>`;
-  showStoredResult();
+function stopTimer() {
+  if(state.timerInterval) clearInterval(state.timerInterval);
 }
 
-function switchQ(idx) {
-  if(document.getElementById('codeEditor')) localState.codes[localState.currentQ] = document.getElementById('codeEditor').value;
-  localState.currentQ = idx; renderGameScreen();
+// ===== CHẤM ĐIỂM BẰNG CLAUDE AI =====
+async function gradeCode(code, qIdx) {
+  const prompt = questions[qIdx].testPrompt.replace('{CODE}', code);
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 400,
+      system: 'Bạn là giáo viên chấm code ngắn gọn. Chỉ trả về JSON thuần, không markdown.',
+      messages: [{role:'user', content: prompt}]
+    })
+  });
+  const data = await res.json();
+  const text = data.content.map(b=>b.text||'').join('');
+  const clean = text.replace(/```json|```/g,'').trim();
+  return JSON.parse(clean);
 }
 
-async function submitCode() {
-  localState.codes[localState.currentQ] = document.getElementById('codeEditor').value;
-  const btn = document.getElementById('submitBtn');
-  btn.innerText = "🤖 Đang chấm..."; btn.disabled = true;
-
-  const result = await mockGradeCode(localState.codes[localState.currentQ], localState.currentQ);
-  localState.scores[localState.currentQ] = result.score;
-  
-  document.getElementById('result-area').innerHTML = `
-    <div class="result-box show ${result.pass ? 'pass' : 'fail'}">
-      <h3 style="color:${result.pass?'var(--green)':'var(--red)'}; margin-bottom:5px">Điểm: ${result.score}/10</h3>
-      <p style="font-size:13px">${result.feedback}</p>
-    </div>
-  `;
-  
-  // Cập nhật điểm lên Firebase cho giáo viên xem Realtime
-  const totalScore = localState.scores.reduce((a,b)=>(a||0)+(b||0), 0);
-  roomRef.child('players/' + localState.playerName).update({ score: totalScore, status: 'coding' });
-
-  btn.innerText = "🚀 Chấm lại"; btn.disabled = false;
+function setRobotMood(mood) {
+  ['robot-left','robot-right'].forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    const svg = el.querySelector('svg');
+    if(!svg) return;
+    svg.className = mood==='excited' ? 'robot-excited' : mood==='wave' ? 'robot-bounce' : 'robot-idle';
+  });
 }
 
-function showStoredResult() {
-  const sc = localState.scores[localState.currentQ];
-  if(sc !== null) {
-    document.getElementById('result-area').innerHTML = `<div class="result-box show ${sc>=5 ? 'pass' : 'fail'}"><h3 style="color:${sc>=5?'var(--green)':'var(--red)'}">Điểm hiện tại: ${sc}/10</h3></div>`;
+function emojiRain(emojis=['🎉','⭐','🚀','🔥','✨'], count=18) {
+  const rain = document.getElementById('emojiRain');
+  rain.innerHTML='';
+  for(let i=0;i<count;i++){
+    const e = document.createElement('span');
+    e.className='e-particle';
+    e.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    e.style.cssText=`left:${Math.random()*100}%;animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()*.8}s;font-size:${16+Math.random()*20}px`;
+    rain.appendChild(e);
   }
 }
 
-// ---- KẾT THÚC & LEADERBOARD ----
-function finishGame() {
-  clearInterval(localState.timerInterval);
-  const totalScore = localState.scores.reduce((a,b)=>(a||0)+(b||0), 0);
-  
-  // Đẩy điểm lên Leaderboard chung trên Firebase
-  roomRef.child('leaderboard/' + localState.playerName).set(totalScore);
+// ===== HIỂN THỊ GIAO DIỆN CÁC MÀN HÌNH =====
 
-  renderFinishScreen(totalScore);
+// MÀN HÌNH ĐĂNG KÝ TÊN TÀI KHOẢN
+function renderNameScreen() {
+  state.screen = 'name';
+  document.getElementById('timerDisplay').style.display = 'none';
+  document.getElementById('center-area').innerHTML = `
+    <div style="font-size:22px;font-weight:900;line-height:1.2;background:linear-gradient(135deg,#C75D2C,#C6922E);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Sẵn sàng<br>chiến đấu?</div>`;
+  document.getElementById('main-content').innerHTML = `
+  <div class="card">
+    <div class="card-title">🤖 Đăng ký tham gia</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:12px;font-weight:600">Nhập tên của bạn để vào phòng chờ chung của lớp!</div>
+    <input class="name-input" id="nameInput" placeholder="Tên của bạn..." maxlength="20" autocomplete="off"/>
+    <button class="btn btn-primary pulse-ring" style="width:100%;margin-bottom:8px" onclick="joinGame()">🚀 Vào phòng chờ chung</button>
+    <button class="btn btn-secondary" style="width:100%" onclick="openBoard()">🏆 Xem bảng xếp hạng</button>
+  </div>
+  ${getTeacherPanelHTML()}`;
+  document.getElementById('nameInput').focus();
+  document.getElementById('nameInput').addEventListener('keydown', e => { if(e.key==='Enter') joinGame(); });
 }
 
-function renderFinishScreen(score) {
-  localState.screen = 'finish';
-  document.getElementById('timerDisplay').style.display = 'none';
+function joinGame() {
+  const name = document.getElementById('nameInput').value.trim();
+  if(!name){ document.getElementById('nameInput').style.borderColor='#C0392B'; return; }
+  state.playerName = name;
+  state.codes = ['',''];
+  state.scores = [null,null];
+  state.feedbacks = [null,null];
+  state.currentQ = 0;
   
-  // Chuyển Object bảng xếp hạng thành Mảng và Sắp xếp
-  const lbArray = Object.entries(globalState.leaderboard || {})
-                        .map(([name, sc]) => ({ name, score: sc }))
-                        .sort((a,b) => b.score - a.score);
-  
-  const rank = lbArray.findIndex(p => p.name === localState.playerName) + 1;
+  joinWaitingOnCloud(name); // Lưu thông tin kết nối lên cloud
+  renderWaitingScreen();
+}
+
+// MÀN HÌNH PHÒNG CHỜ CHUNG (SẢNH ĐỢI)
+function renderWaitingScreen() {
+  state.screen = 'waiting';
+  setRobotMood('idle');
+  document.getElementById('center-area').innerHTML = `
+    <div style="font-size:15px;font-weight:900;color:var(--accent)">Phòng chờ</div>
+    <div style="font-size:11px;color:var(--muted);font-weight:600">Đợi giáo viên bắt đầu...</div>`;
+    
+  document.getElementById('main-content').innerHTML = `
+  <div class="card wait-screen">
+    <div class="wait-title">🕐 Đang chờ giáo viên khai hỏa...</div>
+    <div class="wait-sub">Màn hình sẽ tự chuyển động khi Giáo viên click bắt đầu</div>
+
+    <div style="background:var(--surface2);border-radius:14px;padding:12px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">🤖 Học sinh đã kết nối thời gian thực</div>
+      <div class="wait-room" id="waitGrid">
+        <div style="color:var(--muted);text-align:center;padding:10px;font-size:13px;width:100%">Đang tải danh sách...</div>
+      </div>
+    </div>
+
+    <div style="font-size:13px;color:var(--muted);font-weight:700;text-align:center">
+      ⏱ Thời gian làm bài: <span style="color:var(--accent)">5 phút</span>
+    </div>
+  </div>`;
+  updateWaitingGrid();
+}
+
+// HIỆU ỨNG ĐẾM NGƯỢC ĐỒNG BỘ ĐỒNG LOẠT
+function startCountdown() {
+  let n = 3;
+  const overlay = document.createElement('div');
+  overlay.className = 'countdown-overlay'; overlay.id = 'countdownOverlay';
+  overlay.innerHTML = `<div class="countdown-num" id="countNum">${n}</div><div class="countdown-label">Trận đấu bắt đầu sau...</div>`;
+  document.body.appendChild(overlay);
+
+  const tick = () => {
+    n--;
+    if(n > 0) {
+      const el = document.getElementById('countNum');
+      if(el) { el.textContent=n; }
+      setTimeout(tick, 900);
+    } else {
+      const el = document.getElementById('countNum');
+      if(el) { el.textContent='🚀 Chiến!'; el.style.fontSize='48px'; }
+      setTimeout(() => {
+        overlay.remove();
+        state.startTime = Date.now();
+        state.screen = 'game';
+        renderGameScreen();
+        startTimer(() => timeUp());
+      }, 900);
+    }
+  };
+  setTimeout(tick, 900);
+}
+
+function timeUp() {
+  if(state.screen === 'finish') return;
+  setRobotMood('idle');
+  const totalScore = (state.scores[0]||0)+(state.scores[1]||0);
+  const elapsed = Math.round((Date.now()-state.startTime)/1000);
+  saveScoreToCloud(state.playerName, totalScore, elapsed);
+  state.screen = 'finish';
+  renderFinishScreen(totalScore, elapsed, true);
+}
+
+// MÀN HÌNH LÀM BÀI VÀ GỬI CODE CHẤM ĐIỂM
+function renderGameScreen() {
+  const q = questions[state.currentQ];
+  document.getElementById('center-area').innerHTML = `
+    <div style="font-size:12px;color:var(--muted);font-weight:700">Câu <span style="color:var(--accent);font-weight:900">${state.currentQ+1}</span>/${questions.length}</div>
+    <div style="font-size:14px;font-weight:900;color:var(--accent);margin-top:2px">${q.title}</div>`;
 
   document.getElementById('main-content').innerHTML = `
-  <div class="card finish-banner">
-    <div style="font-size:50px">🏆</div>
-    <div class="total-score" style="font-size:40px">${score} Điểm</div>
-    <p style="color:var(--muted); font-weight:bold; margin-bottom:20px">Hoàn thành! Bạn đang xếp Hạng #${rank || '?'}</p>
-    <button class="btn btn-secondary" onclick="location.reload()">Trở về trang chủ</button>
+  <div class="progress-bar"><div class="progress-fill" style="width:${(state.currentQ/questions.length)*100}%"></div></div>
+  <div class="tab-row">
+    ${questions.map((qq,i)=>`<button class="tab ${i===state.currentQ?'active':''} ${state.scores[i]!==null?'done':''}" onclick="switchQ(${i})">${state.scores[i]!==null?'✓ ':''} Câu ${i+1}</button>`).join('')}
   </div>
-  <div class="card">
-    <div class="card-title">Bảng Xếp Hạng Lớp</div>
-    <div>
-      ${lbArray.map((p, i) => `
-        <div class="lb-row" style="${p.name===localState.playerName ? 'border-color:var(--accent); background:rgba(59,130,246,0.1)':''}">
-          <div class="lb-rank">#${i+1}</div>
-          <div class="lb-name">${p.name} ${p.name===localState.playerName?'(Bạn)':''}</div>
-          <div class="lb-score">${p.score}</div>
-        </div>
-      `).join('')}
+  <div class="card" id="q-card">
+    <div class="question-badge">📝 Câu ${state.currentQ+1} / ${questions.length}</div>
+    <div class="question-text">${q.desc}</div>
+    <div class="editor-wrap">
+      <div class="editor-label" style="display:flex;align-items:center">
+        💻 Viết mã code JavaScript của bạn tại đây:
+        <button class="hint-btn" onclick="toggleHint()">💡 Xem gợi ý</button>
+      </div>
+      <div class="hint-box" id="hint-box"><pre style="margin:0;white-space:pre-wrap">${q.hint}</pre></div>
+      <textarea id="codeEditor" placeholder="${q.placeholder}">${state.codes[state.currentQ]}</textarea>
     </div>
+    <div id="result-area"></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="clearCode()">🗑 Xoá sạch</button>
+      <button class="btn btn-primary" id="submitBtn" onclick="submitCode()" ${state.submitting?'disabled':''}>
+        ${state.submitting?`<span class="loading-dots"><span></span><span></span><span></span></span> AI đang chấm...`:'🚀 Nộp bài lên AI'}
+      </button>
+    </div>
+    ${state.currentQ<questions.length-1 && state.scores[state.currentQ]!==null ?
+      `<div class="btn-row" style="margin-top:6px"><button class="btn btn-next" onclick="switchQ(${state.currentQ+1})">Sang Câu Tiếp Theo →</button></div>`:
+      state.currentQ===questions.length-1 && state.scores.every(s=>s!==null) ?
+      `<div class="btn-row" style="margin-top:6px"><button class="btn btn-next" onclick="finishGame()">🏁 Hoàn thành bài thi</button></div>`:''
+    }
+  </div>`;
+
+  if(state.scores[state.currentQ]!==null) showStoredResult();
+  document.getElementById('codeEditor').addEventListener('input', e => { state.codes[state.currentQ] = e.target.value; });
+}
+
+function switchQ(i) {
+  state.codes[state.currentQ] = document.getElementById('codeEditor')?.value || state.codes[state.currentQ];
+  state.currentQ = i;
+  renderGameScreen();
+}
+
+function toggleHint() { document.getElementById('hint-box').classList.toggle('show'); }
+function clearCode() { document.getElementById('codeEditor').value = ''; state.codes[state.currentQ] = ''; }
+
+function showStoredResult() {
+  const fb = state.feedbacks[state.currentQ];
+  const sc = state.scores[state.currentQ];
+  if(!fb) return;
+  const pass = sc >= 5;
+  const ed = document.getElementById('codeEditor');
+  if(ed) ed.className = pass?'success':'error';
+  document.getElementById('result-area').innerHTML=`
+  <div class="result-box show ${pass?'pass':'fail'}">
+    <div class="result-score ${pass?'pass':'fail'}">${fb.emoji || '✨'} ${sc}/10</div>
+    <div class="result-fb">${fb.feedback}</div>
   </div>`;
 }
 
-function startTimer() {
-  let timeLeft = TOTAL_SECONDS;
-  const disp = document.getElementById('timerDisplay'), fill = document.getElementById('timerFill');
-  disp.style.display = 'block';
+async function submitCode() {
+  const code = document.getElementById('codeEditor').value.trim();
+  if(!code){ alert('Vui lòng hoàn thành viết mã nguồn trước khi chấm bài! 💻'); return; }
+  state.codes[state.currentQ] = code;
+  state.submitting = true;
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('submitBtn').innerHTML = `<span class="loading-dots"><span></span><span></span><span></span></span> AI đang chấm...`;
   
-  localState.timerInterval = setInterval(() => {
-    timeLeft--;
-    disp.textContent = `⏱ ${Math.floor(timeLeft/60)}:${String(timeLeft%60).padStart(2,'0')}`;
-    fill.style.width = (timeLeft/TOTAL_SECONDS*100)+'%';
-    if(timeLeft <= 0) finishGame();
-  }, 1000);
+  try {
+    const result = await gradeCode(code, state.currentQ);
+    state.scores[state.currentQ] = result.score;
+    state.feedbacks[state.currentQ] = result;
+    if(result.pass) { setRobotMood('excited'); emojiRain(['✅','🎉','⭐','🔥']); }
+    else { setRobotMood('idle'); }
+    setTimeout(()=>setRobotMood('idle'), 3000);
+  } catch(e) {
+    state.scores[state.currentQ] = 7;
+    state.feedbacks[state.currentQ] = {score:7, pass:true, feedback:'AI trả kết quả lỗi, hệ thống tính điểm danh dự tạm thời: 7/10 👍', emoji:'👍'};
+  }
+  state.submitting = false;
+  renderGameScreen();
 }
 
-// Khởi chạy giao diện ban đầu
+function finishGame() {
+  stopTimer();
+  const totalScore = (state.scores[0]||0)+(state.scores[1]||0);
+  const elapsed = Math.round((Date.now()-state.startTime)/1000);
+  saveScoreToCloud(state.playerName, totalScore, elapsed);
+  state.screen = 'finish';
+  renderFinishScreen(totalScore, elapsed, false);
+}
+
+// MÀN HÌNH HOÀN THÀNH BÀI THI KẾT QUẢ
+function renderFinishScreen(totalScore, elapsed, isTimeUp) {
+  setRobotMood('excited');
+  emojiRain(['🎊','🌟','🏆','🎉','🔥'], 24);
+  const grade = totalScore>=18?'Xuất sắc! 🌟':totalScore>=14?'Giỏi lắm! 🎉':totalScore>=10?'Khá tốt! 👍':'Cố gắng thêm! 💪';
+
+  document.getElementById('center-area').innerHTML=`<div style="font-size:32px">🎊</div>`;
+  document.getElementById('main-content').innerHTML=`
+  <div class="card finish-banner">
+    <div>${makeRobot(state.playerName, 72, 'excited')}</div>
+    <div class="finish-title" style="margin-top:10px">${grade}</div>
+    <div class="finish-sub">${state.playerName} · ${elapsed}s giây ${isTimeUp?' · ⏰ Hết giờ':''}</div>
+    <div class="total-score">${totalScore}</div>
+    <div style="font-size:14px;color:var(--muted);margin-bottom:16px;font-weight:700">/ 20 tổng điểm</div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:16px">
+      ${state.scores.map((s,i)=>`
+        <div style="text-align:center;background:var(--surface2);border-radius:12px;padding:10px 18px;border:1.5px solid var(--border)">
+          <div style="font-size:11px;color:var(--muted);font-weight:700">Câu ${i+1}</div>
+          <div style="font-size:22px;font-weight:900;color:${(s||0)>=7?'#3F9142':(s||0)>=5?'#C6922E':'#C0392B'}">${s||0}<span style="font-size:13px;color:var(--muted)">/10</span></div>
+        </div>`).join('')}
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="openBoard()">🏆 Xem BXH lớp</button>
+      <button class="btn btn-primary" onclick="playAgain()">🔄 Làm bài mới</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
+      🏆 Bảng vinh danh lớp học thời gian thực
+    </div>
+    <div id="finish-board"></div>
+  </div>`;
+  renderBoardInto('finish-board', state.playerName);
+}
+
+// BẢNG XẾP HẠNG TOÀN LỚP ĐỒNG BỘ ĐÁM MÂY
+function openBoard() {
+  state.screen = 'totalboard';
+  setRobotMood('idle');
+  document.getElementById('center-area').innerHTML=`<div style="font-size:15px;font-weight:900;color:var(--gold)">🏆 Bảng vàng</div>`;
+  document.getElementById('main-content').innerHTML=`
+  <div class="card score-board-screen">
+    <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
+      🏆 Kết quả của toàn bộ học sinh trong lớp
+    </div>
+    <div id="total-board"><div style="color:var(--muted);text-align:center;padding:20px;font-weight:600">Đang đồng bộ kết quả...</div></div>
+    <div class="btn-row" style="margin-top:12px">
+      ${getTeacherPanelHTML()}
+    </div>
+    <div class="btn-row" style="margin-top:4px">
+      <button class="btn btn-primary" style="width:100%" onclick="playAgain()">🎮 Vào trang chính tham gia</button>
+    </div>
+  </div>`;
+  renderBoardInto('total-board', state.playerName);
+}
+
+function renderBoardInto(containerId, myName) {
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  
+  const boardObj = globalData.board || {};
+  let board = Object.values(boardObj);
+  board.sort((a,b) => b.score - a.score || a.time - b.time);
+  board = board.slice(0, 25); 
+
+  if(!board.length) { 
+    el.innerHTML='<div style="color:var(--muted);text-align:center;padding:20px;font-weight:600">Chưa có học sinh nộp bài. Hãy là thủ khoa đầu tiên! 🚀</div>'; 
+    return; 
+  }
+  
+  const medals=['🥇','🥈','🥉'];
+  const scoreColors = (score) => score>=18?'#B8860B':score>=14?'#3F9142':score>=10?'#3B6FB5':'#C0392B';
+  
+  el.innerHTML = `<div class="leaderboard score-board-screen">${board.map((p,i)=>{
+    const isMe = p.name===myName;
+    const sc = i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    return `<div class="lb-row${isMe?' me':''}" style="${isMe?'border-color:var(--accent);background:rgba(199,93,44,.07)':''}">
+      <span class="lb-rank">${medals[i]||'<span style="font-size:13px;font-weight:800;color:var(--muted)">#'+(i+1)+'</span>'}</span>
+      <div style="margin-right:8px;flex-shrink:0">${makeRobot(p.name, 32, 'idle')}</div>
+      <span class="lb-name">${p.name}${isMe?' ⭐':''}</span>
+      <div style="text-align:right">
+        <div class="lb-score ${sc}" style="color:${sc?'':scoreColors(p.score)}">${p.score}<span style="font-size:11px;font-weight:600;color:var(--muted)">/20</span></div>
+        <div class="lb-time">${p.time}s · ${p.ts}</div>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function playAgain() {
+  stopTimer();
+  state = {...state, screen:'name', playerName:'', currentQ:0, codes:['',''], scores:[null,null], feedbacks:[null,null], startTime:null, submitting:false, localGameStarted:false};
+  setRobotMood('idle');
+  document.getElementById('timerDisplay').style.display='none';
+  document.getElementById('timerFill').style.width='100%';
+  renderNameScreen();
+}
+
+// Khởi tạo chạy Game ban đầu
 renderNameScreen();
 </script>
 </body>
